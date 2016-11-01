@@ -1,103 +1,39 @@
-//
-//  Cell.cpp
-//  Map
-//
-//  Created by Garrison Blair on 2016-10-02.
-//  Copyright © 2016 Garrison Blair. All rights reserved.
-//
+#include "Cell.h"
 
-#include "Cell.hpp"
+Type::Type()
+{
+    obj = 'n';
+    blocked = false;
+} //End default constructor
 
+Type::Type(char in)
+{
+    if (in == 'w') blocked = true;
+    else blocked = false;
+    obj = in;
+} //End Constructor
 
-// CONSTRUCTORS
+bool Type::isBlocked() const { return blocked; }
+char Type::isObj() const {return obj; }
+
 
 Cell::Cell()
 {
-    empty = true;
     flagged = false;
-    int temp[4] = {bNorth, bEast, bSouth, bWest};
-    for (unsigned int i = 0; i < 4; i++) {
-        borders[i] = temp[i];
-    }
-} // End of Default Constructor
+} // End default constructor
 
-Cell::Cell(const Cell &c)
+Cell::Cell(Type in)
 {
-    empty = c.empty;
-    flagged = c.flagged;
-    for (unsigned int i = 0; i < 4; i++) {
-        borders[i] = c.borders[i];
-    }
-    bNorth = c.bNorth;
-    bSouth = c.bSouth;
-    bEast = c.bEast;
-    bWest = c.bWest;
-    if (c.empty == false) inter = c.inter;
-} // End of Copy Constructor
-
-Cell::Cell(Interaction in)
-{
-    inter = in;
-    empty = true;
     flagged = false;
-    int temp[4] = {bNorth, bEast, bSouth, bWest};
-    for (unsigned int i = 0; i < 4; i++) {
-        borders[i] = temp[i];
-    }
-} // End of Constructor
+    type = in;
+} // End constructor
 
+bool Cell::isFlagged() const { return flagged; }
 
-// BOOLEAN STATE CHECKS
+void Cell::flag() { flagged = true; }
+void Cell::unFlag() { flagged = false; }
 
-bool Cell::isEmpty()    // Cell is empty
-{
-    if (empty == true) return true;
-    else return false;
-} // End of isEmpty function
+void Cell::setType(int in) { type = Type(in); } // End function setType
+void Cell::removeType() { type = NULL; } // End function removeType
 
-bool Cell::isOpen()     // Cell can be moved into
-{
-    if (open == true) return true;
-    else return false;
-} // End of isOpen function
-
-bool Cell::isflagged()  // Cell has been visited
-{
-    if (flagged == true) return true;
-    else return false;
-} // End of isFlagged function
-
-
-// ATTRIBUTE ACCESSORS
-
-int Cell::getN() const {return bNorth;}
-int Cell::getS() const {return bSouth;}
-int Cell::getE() const {return bEast;}
-int Cell::getW() const {return bWest;}
-Interaction Cell::getInter() {return inter;}
-
-
-// ATTRIBUTE EDITORS
-
-void Cell::setNorth(int b) {bNorth = b;}
-void Cell::setSouth(int b) {bSouth = b;}
-void Cell::setEast(int b) {bEast = b;}
-void Cell::setWest(int b) {bWest = b;}
-
-void Cell::flag() {flagged = true;}
-void Cell::unflag() {flagged = false;}
-
-void Cell::addInter(Interaction in)
-{
-    if (empty == true) {
-        inter = in;
-        empty = false;
-        if (inter.block() == true) open = false;
-    }
-    else cout << "Could not add interaction" << endl;
-} // End of addInter function
-
-void Cell::removeInter()
-{
-    empty = true;
-} // End of removeInter function
+Type Cell::getType() const { return type; }

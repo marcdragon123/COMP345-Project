@@ -1,54 +1,74 @@
-//
-//  Cell.hpp
-//  Map
-//
-//  Created by Garrison Blair on 2016-10-02.
-//  Copyright © 2016 Garrison Blair. All rights reserved.
-//
+//////////////////////////////////////////////////////////
+/// GAME RULES: A map in DnD comprises a grid of cells ///
+/// that each has a certain type. That is to say, each ///
+/// cell can be occupied by a character, an enemy, a   ///
+/// container, a door, or a wall. The "type" of cell   ///
+/// determines whether or not a player can move to or  ///
+/// interact with this space.                          ///
+//////////////////////////////////////////////////////////
 
-#ifndef Cell_hpp
-#define Cell_hpp
+//////////////////////////////////////////////////////////
+/// DESIGN:    Cell is effectively a container used to ///
+/// track what is contained per block. This allows the ///
+/// user to set or switch what is contained in each    ///
+/// block. The type determines whether or not a Cell   ///
+/// can be passed (like a door, or enemy) or not (like ///
+/// a wall or container). The Types are labeled as:    ///
+/// w: WALL, c: CONTAINER, n: EMPTY, d: DOOR, e: ENEMY ///
+/// p: PLAYER                                          ///
+/// Cell also contains the "flagged" attribute, which  ///
+/// is used when testing the Map object for a viable   ///
+/// path.                                              ///
+//////////////////////////////////////////////////////////
 
-#include <stdio.h>
+//////////////////////////////////////////////////////////
+/// LIBRARIES USED:                                    ///
+/// iosteam: The only library used, it's purpose is to ///
+///          allow the user to see and interact with   ///
+///          the objects, to better understand what is ///
+///          happening.                                ///
+//////////////////////////////////////////////////////////
+
+#ifndef MAP_CELL_H
+#define MAP_CELL_H
+
 #include <iostream>
-#include "Interaction.hpp"
 
 using namespace std;
-class Interaction;
+
+class Type
+{
+    char obj;
+    bool blocked;
+
+public:
+    Type();
+    Type(int);
+
+    bool isBlocked() const;
+    char getObj() const;
+};
 
 class Cell
 {
-    bool empty;
-    bool open;
     bool flagged;
-    int borders[4];
-    int bNorth, bSouth, bEast, bWest;
-    Interaction inter;      // Character, Opponent, Chest, Wall, Door
-    
+    Type type;
+
 public:
     Cell();
-    Cell(const Cell &);
-    Cell(Interaction);
-    
-    bool isEmpty();
-    bool isOpen();
-    bool isflagged();
-    int getN() const;
-    int getS() const;
-    int getE() const;
-    int getW() const;
-    int * getBorders();
-    Interaction getInter();
-    
-    void setNorth(int);
-    void setSouth(int);
-    void setEast(int);
-    void setWest(int);
+    Cell(Type);
+
+    // Access functions
+    bool isFlagged() const;
+    Type getType() const;
+
+    // Path testing functions
     void flag();
-    void unflag();
-    
-    void addInter(Interaction);
-    void removeInter();
+    void unFlag();
+
+    // Attribute modifier functions
+    void setType(int);
+    void removeType();
 };
 
-#endif /* Cell_hpp */
+#endif //MAP_CELL_H

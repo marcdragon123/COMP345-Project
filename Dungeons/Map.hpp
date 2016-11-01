@@ -1,49 +1,74 @@
-//
-//  Map.hpp
-//  Map
-//
-//  Created by Garrison Blair on 2016-10-02.
-//  Copyright © 2016 Garrison Blair. All rights reserved.
-//
+//////////////////////////////////////////////////////////
+/// GAME RULES: A map consists of a rectangular grid   ///
+/// that can be occupied by a wall, a character, an    ///
+/// opponent, a door, a container, or nothing. Charac- ///
+/// ters and NPCs can only move directly up, down,     ///
+/// left, right. Moving diagonally is not permitted.   ///
+/// Cells containing walls or containers cannot be     ///
+/// moved through. All other spaces can be passed.     ///
+//////////////////////////////////////////////////////////
 
-#ifndef Map_hpp
-#define Map_hpp
+//////////////////////////////////////////////////////////
+/// DESIGN:       A map object consists of a 2D array  ///
+/// initialized in the constructor. These arrays con-  ///
+/// tain objects of type Cell, and are initialized to  ///
+/// to empty. The Map itself only contains data about  ///
+/// the size of the grid, the starting point, and the  ///
+/// the ending point. It also contains functions that  ///
+/// allow for a user to manually set the entry and ex- ///
+/// it points, as well as setting individual Cells to  ///
+/// contain a wall/character/etc. It also has a func-  ///
+/// tion to verify that there is a path through the    ///
+/// map.                                               ///
+//////////////////////////////////////////////////////////
 
-#include <stdio.h>
-#include "Cell.hpp"
+//////////////////////////////////////////////////////////
+/// LIBRARIES USED:                                    ///
+/// iostream: As with Cell, the only action the grid   ///
+///           needed to be able to perform was to com- ///
+///           municate with the user to provide in-    ///
+///           formation about what was being done.     ///
+///           Built-in arrays were used for simplicity ///
+/// string:   The string library was used to simplify  ///
+///           the creation and manipulation of the map ///
+///           name. It is not mandatory, but helps to  ///
+///           differentiate maps.                      ///
+//////////////////////////////////////////////////////////
 
-class Cell;
+#ifndef MAP_MAP_H
+#define MAP_MAP_H
+
+#include "Cell.h"
+#include <string>
 
 class Map
 {
+    int width, length;
+    int startX, startY;
+    int endX, endY;
     string name;
-    string description;
-    int width, height;
-    int start, finish;
-    
-    Cell * cellList[1024];
-    int cells;
-    
+
+    Cell ** grid;
+
 public:
     Map();
     Map(int, int);
-    
-    string getName() const;
-    string getDescription() const;
-    int getWidth() const;
-    int getHeight() const;
-    int getsize() const;
-    int getStart() const;
-    int getFinish() const;
-    
-    void setName(string);
-    void setDescription(string);
-    void setStart(int);
-    void setFinish(int);
-    Cell getCell(int);
+
+    // Access functions
     Cell getCell(int, int);
-    void setBorders();
-    bool checkPath(int);
+    int getWidth() const;
+    int getLength() const;
+
+    // Attribute modifier functions
+    void setStart(int, int);
+    void setEnd(int, int);
+    void setName(string);
+
+    // Path testing functions
+    void setCell(int, int, int);
+    void clearFlags();
+    bool checkPath(int, int);
+    bool verify();
 };
 
-#endif /* Map_hpp */
+#endif //MAP_MAP_H
