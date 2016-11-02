@@ -2,9 +2,13 @@
 #define GAME_H
 
 #include "Campaign.h"
+#include "Director.h"
 
 class Game
 {
+protected:
+    Campaign * campaign;
+
 public:
     Game();
     ~Game();
@@ -13,12 +17,13 @@ public:
     void load();
     void newGame();
 
+    Map getMap(int) const;
+
     //virtual void print() = 0;
 };
 
 class Edit: public Game
 {
-    Campaign * campaign;
 public:
     Edit();
     ~Edit();
@@ -39,3 +44,4 @@ public:
 };
 
 #endif /* GAME_H */
+

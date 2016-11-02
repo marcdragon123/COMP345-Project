@@ -1,20 +1,26 @@
 #include "Campaign.h"
 
+
+// CONSTRUCTOR
 Campaign::Campaign()
 {
     campaign = new Map[64];
+    name = "DEFAULT";
 }
 
+// DESTRUCTOR
 Campaign::~Campaign()
 {
     delete [] campaign;
 }
 
-void Campaign::loadMap(int in)
+// SETS ACTIVE MAP
+void Campaign::accessMap(int in)
 {
-    loaded = in;
+    current = in;
 }
 
+// USER ADD MAP TO CAMPAIGN
 void Campaign::createMap()
 {
     int x, y;
@@ -23,10 +29,9 @@ void Campaign::createMap()
     cin >> x;
     cout << "Input map length: ";
     cin >> y;
-    campaign[pos] = Map(x, y);
     cout << "Enter map name: ";
     cin >> name;
-    campaign[pos].setName(name);
+    campaign[pos] = Map(name, x, y);
     cout << "Map generated" << endl;
     if (pos == 0)
     {
@@ -38,16 +43,17 @@ void Campaign::createMap()
     pos++;
 }
 
+// USER EDIT EXISTING MAP
 void Campaign::editMap()
 {
     int x1, y1, x2, y2, type, map;
     char end;
     do
     {
-        campaign[loaded].print();
-        cout << "Enter coordinates of cell to modify: " << endl;
-        cin >> x1;
+        campaign[current].print();
+        cout << "Enter coordinates of cell to modify (row, column): " << endl;
         cin >> y1;
+        cin >> x1;
         x1--;
         y1--;
 
@@ -60,13 +66,13 @@ void Campaign::editMap()
         switch (type)
         {
             case 1:
-                campaign[loaded].setCell(x1, y1, 'w');
+                campaign[current].setCell(x1, y1, 'w');
                 break;
             case 2:
-                campaign[loaded].setCell(x1, y1, 'c');
+                campaign[current].setCell(x1, y1, 'c');
                 break;
             case 3:
-                campaign[loaded].setCell(x1, y1, 'n');
+                campaign[current].setCell(x1, y1, 'n');
                 break;
             case 4:
                 for (unsigned int i = 0; i < pos; i++)
@@ -79,23 +85,23 @@ void Campaign::editMap()
                 cin >> y2;
                 x2--;
                 y2--;
-                campaign[map-1].setCell(x2, y2, campaign[loaded].getName(), x1, x2);
-                campaign[loaded].setCell(x1, y1, campaign[map-1].getName(), x2, y2);
+                campaign[map-1].setCell(x2, y2, campaign[current].getName(), x1, x2);
+                campaign[current].setCell(x1, y1, campaign[map-1].getName(), x2, y2);
                 break;
             case 5:
-                campaign[loaded].setCell(x1, y1, 'e');
+                campaign[current].setCell(x1, y1, 'e');
                 break;
             default:
                 break;
         }
         cout << "Current Map: " << endl;
-        campaign[loaded].print();
+        campaign[current].print();
 
-        cout << "Continue? (y/n): ";
+        cout << "Continue editing map? (y/n): ";
         cin >> end;
         if ((end == 'n') || (end == 'N'))
         {
-            if (campaign[loaded].verify())
+            if (campaign[current].verify())
                 break;
             else
             {
@@ -109,30 +115,34 @@ void Campaign::editMap()
     saveMap();
 }
 
+// SAVE MAP TO FILE
 void Campaign::saveMap() const
 {
     string target;
-    cout << "Enter the path where you would like to save the current map: ";
-    cin >> target;
+    target = campaign[current].getName();
+    target += ".txt";
 
     ofstream active;
-    active.open("file.txt");
-    active << campaign[loaded].getLength() << ' ';
-    active << campaign[loaded].getWidth() << '\n';
+    active.open(target);
 
-    for (unsigned int i = 0; i < campaign[loaded].getLength(); i++)
-        for (unsigned int j = 0; j < campaign[loaded].getWidth(); j++)
+    active << campaign[current].getName() << '\n';
+
+    active << campaign[current].getLength() << ' ';
+    active << campaign[current].getWidth() << '\n';
+
+    for (unsigned int i = 0; i < campaign[current].getLength(); i++)
+        for (unsigned int j = 0; j < campaign[current].getWidth(); j++)
         {
-            active << campaign[loaded].getCell(j, i).getType();
-            switch (campaign[loaded].getCell(j, i).getType())
+            active << campaign[current].getCell(j, i).getType();
+            switch (campaign[current].getCell(j, i).getType())
             {
                 case 'n':
                     active << '\n';
                     break;
                 case 'd':
-                    active << ' ' << campaign[loaded].getCell(j, i).getDoor()->getLink();
-                    active << ' ' << campaign[loaded].getCell(j, i).getDoor()->getX();
-                    active << ' ' << campaign[loaded].getCell(j, i).getDoor()->getY();
+                    active << ' ' << campaign[current].getCell(j, i).getDoor()->getLink();
+                    active << ' ' << campaign[current].getCell(j, i).getDoor()->getX();
+                    active << ' ' << campaign[current].getCell(j, i).getDoor()->getY();
                     active << '\n';
                     break;
                 case 'c':
@@ -152,12 +162,26 @@ void Campaign::saveMap() const
     active.close();
 }
 
+// ADDS EXISTING MAP
+void Campaign::addMap(Map & loaded)
+{
+    campaign[pos] = loaded;
+    pos++;
+}
 
+// ACCESS MAP
+Map Campaign::getMap(int x) const
+{
+    return campaign[x];
+}
+
+// ACCESS LAST MAP
 int Campaign::getPos() const
 {
     return pos;
 }
 
+// LIST MAPS
 void Campaign::print() const
 {
     unsigned int i = 0;
