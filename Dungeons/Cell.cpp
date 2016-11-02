@@ -10,11 +10,42 @@ Type::Type(char in)
 {
     if (in == 'w') blocked = true;
     else blocked = false;
+
     obj = in;
 } //End Constructor
 
+Type::Type(string in, int a, int b)
+{
+    door = new Door(in, a, b);
+    blocked = false;
+
+    obj = 'd';
+}
+
+char Type::getObj() const { return obj; }
 bool Type::isBlocked() const { return blocked; }
-char Type::isObj() const {return obj; }
+
+
+Door::Door()
+{
+    link = "";
+    x = 0;
+    y = 0;
+}
+
+Door::Door(string name, int a, int b)
+{
+    link = name;
+    x = a;
+    y = b;
+}
+
+void Door::setLink(string name, int inx, int iny)
+{
+    link = name;
+    x = inx;
+    y = iny;
+}
 
 
 Cell::Cell()
@@ -33,7 +64,11 @@ bool Cell::isFlagged() const { return flagged; }
 void Cell::flag() { flagged = true; }
 void Cell::unFlag() { flagged = false; }
 
-void Cell::setType(int in) { type = Type(in); } // End function setType
+void Cell::setType(char in) { type = Type(in); } // End function setType
+void Cell::setType(string name, int x, int y)
+{
+    type = Type(name, x, y);
+}
 void Cell::removeType() { type = NULL; } // End function removeType
 
 Type Cell::getType() const { return type; }

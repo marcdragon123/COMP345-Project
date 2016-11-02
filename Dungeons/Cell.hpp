@@ -14,8 +14,8 @@
 /// block. The type determines whether or not a Cell   ///
 /// can be passed (like a door, or enemy) or not (like ///
 /// a wall or container). The Types are labeled as:    ///
-/// w: WALL, c: CONTAINER, n: EMPTY, d: DOOR, e: ENEMY ///
-/// p: PLAYER                                          ///
+/// 0: WALL, 1: CONTAINER, 2: EMPTY, 3: DOOR, 4: ENEMY ///
+/// 5: PLAYER                                          ///
 /// Cell also contains the "flagged" attribute, which  ///
 /// is used when testing the Map object for a viable   ///
 /// path.                                              ///
@@ -36,17 +36,36 @@
 
 using namespace std;
 
+class Door
+{
+    string link;
+    int x,y;
+
+public:
+    Door();
+    Door(string, int, int);
+
+    void setLink(string, int, int);
+
+    string getLink() const;
+    int getX() const;
+    int getY() const;
+};
+
 class Type
 {
     char obj;
+    Door * door;
     bool blocked;
 
 public:
     Type();
-    Type(int);
+    Type(char);
+    Type(string, int, int);
 
-    bool isBlocked() const;
     char getObj() const;
+    bool isBlocked() const;
+
 };
 
 class Cell
@@ -67,7 +86,8 @@ public:
     void unFlag();
 
     // Attribute modifier functions
-    void setType(int);
+    void setType(char);
+    void setType(string, int, int);
     void removeType();
 };
 

@@ -26,9 +26,16 @@ Map::Map(int x, int y)
         grid[i] = new Cell[width];
 }
 
+Map::~Map()
+{
+    for (unsigned int i = 0; i < length; i++)
+        delete [] grid[i];
+}
+
 Cell Map::getCell(int x, int y) { return grid[x][y]; }
 int Map::getWidth() const { return width; }
 int Map::getLength() const { return length; }
+string Map::getName() const { return name; }
 
 void Map::setStart(int x, int y)
 {
@@ -45,10 +52,15 @@ void Map::setName(string in)
     name = in;
 } // End function setName
 
-void Map::setCell(int x, int y, int c)
+void Map::setCell(int x, int y, char c)
 {
     grid[x][y].setType(c);
 } // End function setCell
+
+void Map::setCell(int x1, int y1, string name, int x2, int y2)
+{
+    grid[x1][y1].setType(name, x2, x1);
+}
 
 void Map::clearFlags()
 {
@@ -84,3 +96,68 @@ bool Map::verify()
     clearFlags();
     return checkPath(startX, startY);
 } // End function test
+
+void Map::print()
+{
+    for (int y = length-1; y >= 0; y--)
+    {
+        for (int i = 0; i < width; i++)
+            cout << "--------";
+        cout << "-" << endl;
+        for (int x = 0; x < width; x++) {
+            cout << "|";
+            switch (grid[x][y].getType().getObj()) {
+                case 'n':
+                    cout << "       ";
+                    break;
+                case 'd':
+                    cout << "  |-|  ";
+                    break;
+                case 'c':
+                    cout << "  ___  ";
+                    break;
+                case 'e':
+                    cout << "  -E-  ";
+                    break;
+                case 'w':
+                    cout << "|||||||";
+                    break;
+                case 'p':
+                    cout << "  -P-  ";
+                    break;
+                default:
+                    break;
+            }
+        }
+        cout << "|" << endl;
+        for (int x = 0; x < width; x++) {
+            cout << "|";
+            switch (grid[x][y].getType().getObj()) {
+                case 'n':
+                    cout << "       ";
+                    break;
+                case 'd':
+                    cout << "  |D|  ";
+                    break;
+                case 'c':
+                    cout << " | C | ";
+                    break;
+                case 'e':
+                    cout << "  / \\  ";
+                    break;
+                case 'w':
+                    cout << "|||||||";
+                    break;
+                case 'p':
+                    cout << "  / \\  ";
+                    break;
+                default:
+                    break;
+            }
+        }
+        cout << "|" << endl;
+    }
+    for (int i = 0; i < width; i++)
+        cout << "--------";
+    cout << "-" << endl;
+}

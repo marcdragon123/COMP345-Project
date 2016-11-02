@@ -53,11 +53,13 @@ class Map
 public:
     Map();
     Map(int, int);
+    ~Map();
 
     // Access functions
     Cell getCell(int, int);
     int getWidth() const;
     int getLength() const;
+    string getName() const;
 
     // Attribute modifier functions
     void setStart(int, int);
@@ -65,10 +67,13 @@ public:
     void setName(string);
 
     // Path testing functions
-    void setCell(int, int, int);
+    void setCell(int, int, char);
+    void setCell(int, int, string, int, int);
     void clearFlags();
     bool checkPath(int, int);
     bool verify();
+
+    void print();
 };
 
 #endif //MAP_MAP_H
