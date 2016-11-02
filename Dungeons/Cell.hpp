@@ -79,7 +79,8 @@ public:
 
     // Access functions
     bool isFlagged() const;
-    Type getType() const;
+    bool isBlocked() const;
+    char getType() const;
 
     // Path testing functions
     void flag();

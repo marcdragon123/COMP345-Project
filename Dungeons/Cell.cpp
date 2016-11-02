@@ -60,6 +60,7 @@ Cell::Cell(Type in)
 } // End constructor
 
 bool Cell::isFlagged() const { return flagged; }
+bool Cell::isBlocked() const { return type.isBlocked(); }
 
 void Cell::flag() { flagged = true; }
 void Cell::unFlag() { flagged = false; }
@@ -71,4 +72,4 @@ void Cell::setType(string name, int x, int y)
 }
 void Cell::removeType() { type = NULL; } // End function removeType
 
-Type Cell::getType() const { return type; }
+char Cell::getType() const { return type.getObj(); }

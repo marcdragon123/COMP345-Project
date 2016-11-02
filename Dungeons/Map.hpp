@@ -44,8 +44,6 @@
 class Map
 {
     int width, length;
-    int startX, startY;
-    int endX, endY;
     string name;
 
     Cell ** grid;
@@ -62,8 +60,6 @@ public:
     string getName() const;
 
     // Attribute modifier functions
-    void setStart(int, int);
-    void setEnd(int, int);
     void setName(string);
 
     // Path testing functions

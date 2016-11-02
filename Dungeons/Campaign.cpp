@@ -27,8 +27,15 @@ void Campaign::createMap()
     cout << "Enter map name: ";
     cin >> name;
     campaign[pos].setName(name);
-    pos++;
     cout << "Map generated" << endl;
+    if (pos == 0)
+    {
+        cout << "Enter the coordinates of the start: " << endl;
+        cin >> x;
+        cin >> y;
+        campaign[pos].setCell(x-1, y-1, "CAMPAIGN_START", 0, 0);
+    }
+    pos++;
 }
 
 void Campaign::editMap()
@@ -38,7 +45,7 @@ void Campaign::editMap()
     do
     {
         campaign[loaded].print();
-        cout << "Enter coordinates of cell to modify: ";
+        cout << "Enter coordinates of cell to modify: " << endl;
         cin >> x1;
         cin >> y1;
         x1--;
@@ -86,7 +93,18 @@ void Campaign::editMap()
 
         cout << "Continue? (y/n): ";
         cin >> end;
-        if ((end == 'n') || (end == 'N')) break;
+        if ((end == 'n') || (end == 'N'))
+        {
+            if (campaign[loaded].verify())
+                break;
+            else
+            {
+                cout << "This map does not have a valid exit" << endl;
+                cout << "Are you sure you want to exit? (y/n): ";
+                cin >> end;
+                if ((end == 'y') || (end == 'Y')) break;
+            }
+        }
     } while (1);
 }
 
