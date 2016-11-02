@@ -2,6 +2,7 @@
 #define CAMPAIGN_H
 
 #include "Map.h"
+#include <fstream>
 
 class Campaign
 {
@@ -16,9 +17,12 @@ public:
     void loadMap(int);
     void createMap();
     void editMap();
+    void saveMap() const;
 
     int getPos() const;
     void print() const;
+
+    void verify();
 
 };
 

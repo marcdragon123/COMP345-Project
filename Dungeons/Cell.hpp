@@ -64,6 +64,7 @@ public:
     Type(string, int, int);
 
     char getObj() const;
+    Door * getDoor() const;
     bool isBlocked() const;
 
 };
@@ -81,6 +82,7 @@ public:
     bool isFlagged() const;
     bool isBlocked() const;
     char getType() const;
+    Door * getDoor() const;
 
     // Path testing functions
     void flag();

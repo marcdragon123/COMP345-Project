@@ -1,5 +1,9 @@
 #include "Cell.h"
 
+/////////////////////////////////////
+/////// TYPE MEMBER FUNCTIONS ///////
+/////////////////////////////////////
+
 Type::Type()
 {
     obj = 'n';
@@ -23,8 +27,12 @@ Type::Type(string in, int a, int b)
 }
 
 char Type::getObj() const { return obj; }
+Door * Type::getDoor() const { return door; }
 bool Type::isBlocked() const { return blocked; }
 
+/////////////////////////////////////
+/////// DOOR MEMBER FUNCTIONS ///////
+/////////////////////////////////////
 
 Door::Door()
 {
@@ -47,6 +55,13 @@ void Door::setLink(string name, int inx, int iny)
     y = iny;
 }
 
+string Door::getLink() const { return link; }
+int Door::getX() const { return x; }
+int Door::getY() const { return y; }
+
+/////////////////////////////////////
+/////// CELL MEMBER FUNCTIONS ///////
+/////////////////////////////////////
 
 Cell::Cell()
 {
@@ -73,3 +88,10 @@ void Cell::setType(string name, int x, int y)
 void Cell::removeType() { type = NULL; } // End function removeType
 
 char Cell::getType() const { return type.getObj(); }
+Door * Cell::getDoor() const
+{
+    if (type.getObj() == 'd')
+        return type.getDoor();
+    else
+        return new Door;
+}

@@ -106,7 +106,52 @@ void Campaign::editMap()
             }
         }
     } while (1);
+    saveMap();
 }
+
+void Campaign::saveMap() const
+{
+    string target;
+    cout << "Enter the path where you would like to save the current map: ";
+    cin >> target;
+
+    ofstream active;
+    active.open("file.txt");
+    active << campaign[loaded].getLength() << ' ';
+    active << campaign[loaded].getWidth() << '\n';
+
+    for (unsigned int i = 0; i < campaign[loaded].getLength(); i++)
+        for (unsigned int j = 0; j < campaign[loaded].getWidth(); j++)
+        {
+            active << campaign[loaded].getCell(j, i).getType();
+            switch (campaign[loaded].getCell(j, i).getType())
+            {
+                case 'n':
+                    active << '\n';
+                    break;
+                case 'd':
+                    active << ' ' << campaign[loaded].getCell(j, i).getDoor()->getLink();
+                    active << ' ' << campaign[loaded].getCell(j, i).getDoor()->getX();
+                    active << ' ' << campaign[loaded].getCell(j, i).getDoor()->getY();
+                    active << '\n';
+                    break;
+                case 'c':
+                    active << '\n';
+                    break;
+                case 'e':
+                    active << '\n';
+                    break;
+                case 'w':
+                    active << '\n';
+                    break;
+                default:
+                    break;
+            }
+        }
+    cout << "Map saved to " << target << endl;
+    active.close();
+}
+
 
 int Campaign::getPos() const
 {

@@ -24,8 +24,8 @@ Map::Map(int x, int y)
 
 Map::~Map()
 {
-    for (unsigned int i = 0; i < length; i++)
-        delete [] grid[i];
+//    for (unsigned int i = 0; i < length; i++)
+//        delete [] grid[i];
 }
 
 Cell Map::getCell(int x, int y) { return grid[x][y]; }
@@ -45,7 +45,7 @@ void Map::setCell(int x, int y, char c)
 
 void Map::setCell(int x1, int y1, string name, int x2, int y2)
 {
-    grid[x1][y1].setType(name, x2, x1);
+    grid[x1][y1].setType(name, x2, y2);
 }
 
 void Map::clearFlags()
