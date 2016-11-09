@@ -33,6 +33,8 @@
 #define MAP_CELL_H
 
 #include <iostream>
+#include "Container.h"
+#include "Character.h"
 
 using namespace std;
 
@@ -56,15 +58,20 @@ class Type
 {
     char obj;
     Door * door;
+    Container * container;
+    Character * character;
     bool blocked;
 
 public:
     Type();
     Type(char);
     Type(string, int, int);
+    Type(int, string, string);
 
     char getObj() const;
     Door * getDoor() const;
+    Container * getContainer() const;
+    Character * getCharacter() const;
     bool isBlocked() const;
 
 };
@@ -83,6 +90,8 @@ public:
     bool isBlocked() const;
     char getType() const;
     Door * getDoor() const;
+    Container * getContainer() const;
+    Character * getCharacter() const;
 
     // Path testing functions
     void flag();
@@ -91,6 +100,7 @@ public:
     // Attribute modifier functions
     void setType(char);
     void setType(string, int, int);
+    void setType(int, string, string);
     void removeType();
 };
 

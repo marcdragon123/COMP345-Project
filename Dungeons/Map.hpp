@@ -50,7 +50,7 @@ class Map
 
 public:
     Map();
-    Map(int, int);
+    Map(string, int, int);
     ~Map();
 
     // Access functions
@@ -58,13 +58,16 @@ public:
     int getWidth() const;
     int getLength() const;
     string getName() const;
+    int getStartX() const;
+    int getStartY() const;
 
-    // Attribute modifier functions
+    // Attribute modifier functions`
     void setName(string);
 
     // Path testing functions
     void setCell(int, int, char);
     void setCell(int, int, string, int, int);
+    void setCell(int, int, int, string, string);
     void clearFlags();
     bool checkPath(int, int);
     bool verify();

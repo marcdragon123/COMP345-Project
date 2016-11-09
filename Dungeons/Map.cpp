@@ -11,11 +11,11 @@ Map::Map()
         grid[i] = new Cell[width];
 } // End default constructor
 
-Map::Map(int x, int y)
+Map::Map(string in, int x, int y)
 {
     width = x;
     length = y;
-    name = "New Map";
+    name = in;
 
     grid = new Cell*[length]();
     for (unsigned int i = 0; i < length; i++)
@@ -48,6 +48,11 @@ void Map::setCell(int x1, int y1, string name, int x2, int y2)
     grid[x1][y1].setType(name, x2, y2);
 }
 
+void Map::setCell(int x, int y, int lvl, string cls, string name)
+{
+    grid[x][y].setType(lvl, cls, name);
+}
+
 void Map::clearFlags()
 {
     for (unsigned int i = 0; i < length; i++)
@@ -77,7 +82,6 @@ bool Map::checkPath(int x, int y)
     return false;   // If not adjacent Cells are viable (terminates function if reached at root Cell)
 } // End function checkPath
 
-
 bool Map::verify()
 {
     for (unsigned int i = 0; i < width; i++)
@@ -90,6 +94,7 @@ bool Map::verify()
                 if (checkPath(i, j)) return true;
             }
         }
+    return false;
 } // End function test
 
 void Map::print()
@@ -156,3 +161,26 @@ void Map::print()
         cout << "--------";
     cout << "-" << endl;
 }
+
+int Map::getStartX() const
+{
+    for (unsigned int i = 0; i < length; i++)
+        for (unsigned int j = 0; j < width; j++)
+        {
+            if (grid[i][j].getDoor()->getLink() == "CAMPAIGN_START")
+                return j;
+        }
+    return 0;
+}
+
+int Map::getStartY() const
+{
+    for (unsigned int i = 0; i < length; i++)
+        for (unsigned int j = 0; j < width; j++)
+        {
+            if (grid[i][j].getDoor()->getLink() == "CAMPAIGN_START")
+                return i;
+        }
+    return 0;
+}
+

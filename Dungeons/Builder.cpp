@@ -4,11 +4,14 @@
 void EditBuilder::buildMap(string filename)
 {
     ifstream active;
-    active.open(filename);
+    active.open("Save_Data/" + filename);
 
-    int x, y, dx, dy;
-    string in, link;
-    char t;
+    int x, y;
+    int dx, dy;
+    int size, e;
+    int lvl, en;
+    string in, link, cls, name;
+    char t, t2;
 
     active >> in >> y >> x;
     map = new Map(in, x, y);
@@ -28,9 +31,22 @@ void EditBuilder::buildMap(string filename)
                     break;
                 case 'c':
                     map->setCell(j, i, 'c');
+                    active >> size;
+                    for (int c = 0; c < size; c++)
+                    {
+                        active >> t2 >> e;
+                        map->getCell(j, i).getContainer()->addItem(t2, e);
+                    }
                     break;
                 case 'e':
-                    map->setCell(j, i, 'e');
+                    active >> lvl >> cls >> name >> en;
+                    map->setCell(j, i, lvl, cls, name);
+                    map->getCell(j, i).getCharacter()->equip(Item('w', e));
+                    for (int k = 0; k < 9; k++)
+                    {
+                        active >> en;
+                        map->getCell(j, i).getCharacter()->setStat(k, en);
+                    }
                     break;
                 case 'w':
                     map->setCell(j, i, 'w');
@@ -43,3 +59,4 @@ void EditBuilder::buildMap(string filename)
 
     active.close();
 }
+

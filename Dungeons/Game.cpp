@@ -16,11 +16,10 @@ Map Game::getMap(int x) const
 void Game::save()
 {
     string target;
-    cout << "Input the destination file: ";
-    cin >> target;
+    target = campaign->getName() + ".txt";
 
     ofstream campfile;
-    campfile.open("camp.txt");
+    campfile.open("Save_Data/" + target);
 
     for (unsigned int i = 0; i < campaign->getPos(); i++)
     {
@@ -29,18 +28,25 @@ void Game::save()
 }
 
 // LOAD MAP TO CAMPAIGN
-void Game::load()
+void Game::load(string target)
 {
-    string target;
-    cout << "Which file would you like to load?" << endl;
-
+    // Initialize builder pattern objects
     Director * direct = new Director();
     Builder * build = new EditBuilder();
-    direct->setBuilder(build);
-    direct->constructMap("file.txt");
 
-    campaign->addMap(*direct->getMap());
+    // Load campaign file
+    ifstream active;
+    active.open(target);
+    string line;
 
+    // Read through each line
+    // Loading map objects into campaign object
+    while (active >> line)
+    {
+        direct->setBuilder(build);
+        direct->constructMap(line);
+        campaign->addMap(*direct->getMap());
+    }
 }
 
 // CREATE NEW CAMPAIGN FILE
@@ -53,11 +59,12 @@ void Game::newGame()
 Edit::Edit():Game() {}
 Edit::~Edit() { delete campaign; }
 
+
 // RESET CAMPAIGN
-void Edit::createCampaign()
+void Edit::createCampaign(string name)
 {
     delete campaign;
-    campaign = new Campaign();
+    campaign = new Campaign(name);
 }
 
 // EDIT CAMPAIGN
@@ -67,12 +74,21 @@ void Edit::editCampaign()
     char end;
     do
     {
+        // List maps in campaign
         campaign->print();
-        cout << "Which Map would you like to edit? ";
+        cout << "Which Map would you like to edit? " << endl;
+        cout << "----------------------------------------" << endl;
+
+        // Input target map
         cin >> active;
+        active--;
+
+        // Create new map
         if (active == campaign->getPos())
             campaign->createMap();
-        else if (active <= campaign->getPos())
+
+        // Modify existing
+        if (active <= campaign->getPos())
         {
             campaign->accessMap(active);
             campaign->editMap();
@@ -86,4 +102,5 @@ void Edit::editCampaign()
     } while (1);
 
     this->save();
-}}
+    cout << "Saved campaign to " << campaign->getName() << ".txt" << endl;
+}

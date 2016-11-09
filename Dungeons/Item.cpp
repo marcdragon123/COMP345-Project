@@ -1,19 +1,20 @@
-//
-//  Item.cpp
-//  dungeons1
-//
-//  Created by Garrison Blair on 2016-09-28.
-//  Copyright © 2016 Garrison Blair. All rights reserved.
-//
+#include "Item.h"
 
-#include "Item.hpp"
-
-Item::Item() {}
+Item::Item()
+{
+    name = "Item";
+    enchantment = 0;
+    for (unsigned int i = 0; i < 9; i++) {
+        enhance[i] = 0;
+    }
+} // end of Default Constructor
 
 Item::Item(char type, int e)
 {
-    
+    // Attributes assigned based on type
+    // Enchantment applied to stats affected based on type of item
     switch (type) {
+        // Helmet
         case 'h':
         {
             name = "Helmet";
@@ -23,6 +24,7 @@ Item::Item(char type, int e)
             }
             break;
         }
+            // Armor
         case 'a':
         {
             name = "Armor";
@@ -32,6 +34,7 @@ Item::Item(char type, int e)
             }
             break;
         }
+            // Shield
         case 's':
         {
             name = "Shield";
@@ -41,6 +44,7 @@ Item::Item(char type, int e)
             }
             break;
         }
+            // Ring
         case 'r':
         {
             name = "Ring";
@@ -50,6 +54,7 @@ Item::Item(char type, int e)
             }
             break;
         }
+            // Belt
         case 'c':
         {
             name = "Belt";
@@ -59,6 +64,7 @@ Item::Item(char type, int e)
             }
             break;
         }
+            // Boots
         case 'b':
         {
             name = "Boots";
@@ -68,6 +74,7 @@ Item::Item(char type, int e)
             }
             break;
         }
+            // Weapon
         case 'w':
         {
             name = "Weapon";
@@ -77,12 +84,13 @@ Item::Item(char type, int e)
             }
             break;
         }
-            
+
         default:
             break;
-    }
-    
-}
+    } // end of switch statement
+
+    enchantment = e;
+} // end of Parametrized Constructor
 
 Item::Item(const Item &item)
 {
@@ -91,10 +99,14 @@ Item::Item(const Item &item)
     for (unsigned int i = 0; i < 9; i++) {
         enhance[i] = item.enhance[i];
     }
-}
+} // end of Copy Constructor
 
-string Item::getName() const { return name;}
+string Item::getName() const { return name;} // end of getName()
 
-char Item::getType() const { return type;}
+char Item::getType() const { return type;} // end of getType()
 
-int Item::getEnchantment() const { return enchantment;}
+int Item::getEnchantment() const { return enchantment;} // end of getEnchantment()
+
+int* Item::getEnhancement() { return enhance;} // end of getEnhancement()
+
+void Item::setName(string n) { name = n;} // end of setname()

@@ -1,32 +1,50 @@
-//
-//  Container.hpp
-//  dungeons1
-//
-//  Created by Garrison Blair on 2016-09-28.
-//  Copyright © 2016 Garrison Blair. All rights reserved.
-//
+//////////////////////////////////////////////////////////
+/// GAME RULES: A container serves the purpose of      ///
+/// storing items, whether in a chest, backpack, or    ///
+/// worn items.                                        ///
+//////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////
+/// DESIGN: A container is an object that has a dynam- ///
+/// array containing items, and an integer keeping     ///
+/// track of its size, capped at 64 by default.        ///
+//////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////
+/// LIBRARIES USED:                                    ///
+/// iosteam: The only library used, it's purpose is to ///
+///          allow the user to see and interact with   ///
+///          the objects, to better understand what is ///
+///          happening.                                ///
+/// string:  It is used to search the items with       ///
+///          strings.                                  ///
+//////////////////////////////////////////////////////////
 
 #ifndef Container_hpp
 #define Container_hpp
 
-#include <stdio.h>
 #include <iostream>
 #include <string>
+#include "Item.h"
 
-class Item;
 using namespace std;
 
 class Container
 {
-    Item * itemList;
-    int items;
-    
+    Item * itemList;        // List of items
+    int items;              // Size of item list
+
 public:
-    Container();
-    ~Container();
-    
-    void addItem(Item);
-    Item getItem(string);
+    Container();            // Default Constructor
+    ~Container();           // Destructor
+
+    void addItem(Item);     // Add item to container
+    void addItem(char, int);
+    Item getItem(string);   // Get Item from container based on name
+    int getSize() const;
+    Item getItem(int) const;
 };
 
 #endif /* Container_hpp */
+
+

@@ -8,6 +8,12 @@ Campaign::Campaign()
     name = "DEFAULT";
 }
 
+Campaign::Campaign(string in)
+{
+campaign = new Map[64];
+name = in;
+}
+
 // DESTRUCTOR
 Campaign::~Campaign()
 {
@@ -31,8 +37,11 @@ void Campaign::createMap()
     cin >> y;
     cout << "Enter map name: ";
     cin >> name;
+    // Initialize Map //
     campaign[pos] = Map(name, x, y);
     cout << "Map generated" << endl;
+
+    // If map is first map in campaign
     if (pos == 0)
     {
         cout << "Enter the coordinates of the start: " << endl;
@@ -50,6 +59,7 @@ void Campaign::editMap()
     char end;
     do
     {
+        // Shows current map state
         campaign[current].print();
         cout << "Enter coordinates of cell to modify (row, column): " << endl;
         cin >> y1;
@@ -112,24 +122,27 @@ void Campaign::editMap()
             }
         }
     } while (1);
+    // Updates map when finished
     saveMap();
 }
 
 // SAVE MAP TO FILE
 void Campaign::saveMap() const
 {
+    // Formats file name, and opens map file (creates if new)
     string target;
-    target = campaign[current].getName();
-    target += ".txt";
-
+    target = campaign[current].getName() +".txt";
     ofstream active;
-    active.open(target);
+    active.open("Save_Data/" + target);
 
+    // Writes map name
     active << campaign[current].getName() << '\n';
 
+    // Writes dimensions
     active << campaign[current].getLength() << ' ';
     active << campaign[current].getWidth() << '\n';
 
+    // Runs through each cell and writes contents
     for (unsigned int i = 0; i < campaign[current].getLength(); i++)
         for (unsigned int j = 0; j < campaign[current].getWidth(); j++)
         {
@@ -146,9 +159,20 @@ void Campaign::saveMap() const
                     active << '\n';
                     break;
                 case 'c':
+                    active << ' ' << campaign[current].getCell(j, i).getContainer()->getSize();
+                    for (unsigned int k = 0; k < campaign[current].getCell(j, i).getContainer()->getSize(); k++) {
+                        active << '\n' << campaign[current].getCell(j, i).getContainer()->getItem(k).getType();
+                        active << ' ' << campaign[current].getCell(j, i).getContainer()->getItem(k).getEnchantment();
+                    }
                     active << '\n';
                     break;
                 case 'e':
+                    active << ' ' << campaign[current].getCell(j, i).getCharacter()->getLevel();
+                    active << ' ' << campaign[current].getCell(j, i).getCharacter()->getClass();
+                    active << ' ' << campaign[current].getCell(j, i).getCharacter()->getName();
+                    active << ' ' << campaign[current].getCell(j, i).getCharacter()->getItem('w').getEnchantment();
+                    for (unsigned int k = 0; k < 9; k++)
+                        active << ' ' << campaign[current].getCell(j, i).getCharacter()->getStat(k);
                     active << '\n';
                     break;
                 case 'w':
@@ -158,6 +182,7 @@ void Campaign::saveMap() const
                     break;
             }
         }
+    // Confirmation message
     cout << "Map saved to " << target << endl;
     active.close();
 }
@@ -168,6 +193,8 @@ void Campaign::addMap(Map & loaded)
     campaign[pos] = loaded;
     pos++;
 }
+
+string Campaign::getName() const { return name; }
 
 // ACCESS MAP
 Map Campaign::getMap(int x) const
@@ -186,6 +213,6 @@ void Campaign::print() const
 {
     unsigned int i = 0;
     for (; i < pos; i++)
-        cout << i << ". " << campaign[i].getName() << endl;
-    cout << i << ". New Map" << endl;
+        cout << i+1 << ". " << campaign[i].getName() << endl;
+    cout << i+1 << ". New Map" << endl;
 }

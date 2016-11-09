@@ -3,7 +3,7 @@
 
 #include <iostream>
 #include <fstream>
-#include "Campaign.h"
+#include "Map.h"
 
 class Builder
 {
