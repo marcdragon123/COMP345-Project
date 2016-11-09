@@ -1,5 +1,4 @@
 
-#include "stdafx.h"
 #include "Character.h"
 #include "Observer.h"
 #include <list>

@@ -1,4 +1,3 @@
-#include "stdafx.h"
 #include "Observer.h"
 #include "DisplayCharacter.h"
 
