@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "Item.h"
 
 Item::Item()
@@ -13,6 +14,7 @@ Item::Item(char type, int e)
 {
     // Attributes assigned based on type
     // Enchantment applied to stats affected based on type of item
+	this->type = type;
     switch (type) {
         // Helmet
         case 'h':
@@ -24,7 +26,7 @@ Item::Item(char type, int e)
             }
             break;
         }
-            // Armor
+        // Armor
         case 'a':
         {
             name = "Armor";
@@ -34,7 +36,7 @@ Item::Item(char type, int e)
             }
             break;
         }
-            // Shield
+        // Shield
         case 's':
         {
             name = "Shield";
@@ -44,7 +46,7 @@ Item::Item(char type, int e)
             }
             break;
         }
-            // Ring
+        // Ring
         case 'r':
         {
             name = "Ring";
@@ -54,7 +56,7 @@ Item::Item(char type, int e)
             }
             break;
         }
-            // Belt
+        // Belt
         case 'c':
         {
             name = "Belt";
@@ -64,7 +66,7 @@ Item::Item(char type, int e)
             }
             break;
         }
-            // Boots
+        // Boots
         case 'b':
         {
             name = "Boots";
@@ -74,7 +76,7 @@ Item::Item(char type, int e)
             }
             break;
         }
-            // Weapon
+        // Weapon
         case 'w':
         {
             name = "Weapon";
