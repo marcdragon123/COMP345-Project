@@ -24,7 +24,8 @@ class Observer
 {
 public:
     virtual void Update()=0;
-    Observer();
+    inline Observer(){aObservee = nullptr;}
+    inline Observer(Observee* pObservee){aObservee = pObservee;}
     virtual ~Observer();
     virtual bool equals(Observer* pObserver)=0;
     inline int getID(){return aID;}
