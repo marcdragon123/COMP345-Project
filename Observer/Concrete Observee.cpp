@@ -25,12 +25,12 @@ ConcreteObservee::setState(enStatus aState){
     aSubjectStatus = aState;
 };
 
-ConcreteObservee::Attach(Observer* pObserver){
+ConcreteObservee::Attach(ConcreteObserver* pObserver){
     this->getObserver().insert(this->getObserver().back(), pObserver);
 }
 
-ConcreteObservee::Detach(Observer* pObserver){
-    for(Observer* fObserver : this->getObserver())
+ConcreteObservee::Detach(ConcreteObserver* pObserver){
+    for(ConcreteObserver* fObserver : this->getObserver())
     {
         if(fObserver.equals(pObserver))
         {
@@ -40,8 +40,9 @@ ConcreteObservee::Detach(Observer* pObserver){
 };
 
 ConcreteObservee::Notify(){
-    for(Observer* fObserver : this->getObserver())
+    for(ConcreteObserver* fObserver : this->getObserver())
     {
+        fObserver->setObserverState(this->getState());
         fObserver->Update();   
     }
 }

@@ -8,7 +8,7 @@
 #include "Observer.h"
 
 
-bool ConcreteObserver::equals(Observer* pObserver){
+bool ConcreteObserver::equals(ConcreteObserver* pObserver){
   if (this->getID() == pObserver->getID()) ? true : false;
 };
 
@@ -34,13 +34,5 @@ ConcreteObserver::Update(){
             break;
     }
 }   
- 
-ConcreteObserver::ConcreteObserver()
-{
-}
-     
-ConcreteObserver::~ConcreteObserver()
-{
-}
 
 

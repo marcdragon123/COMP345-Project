@@ -60,14 +60,14 @@ public:
     ConcreteObserver();
     ~ConcreteObserver();
     enStatus Update() override;
-    bool equals(Observer* pObserver) override;
+    bool equals(ConcreteObserver* pObserver) override;
     inline enStatus getObserverState(){return aObserverState;}
     inline void setObserverState(enStatus pStatus){aObserverState = pStatus;}
 private:
     enStatus aObserverState;
 };
 
-inline ConcreteObserver::ConcreteObserver(Observee* pObservee)
+inline ConcreteObserver::ConcreteObserver(ConcreteObservee* pObservee)
 {
     Observer::Observer(pObservee);
 };
@@ -79,9 +79,9 @@ public:
     ConcreteObservee(Map* aMap);
     ~ConcreteObservee();
     enStatus getState();
-    void setState(enStatus aState);
-    void Attach(Observer* aObserver) override;
-    void Detach(Observer* aObserver)override;
+    inline void setState(enStatus pState){aSubjectStatus = pState;}
+    void Attach(ConcreteObserver* aObserver) override;
+    void Detach(ConcreteObserver* aObserver)override;
     void Notify() override;
 private:
     enStatus aSubjectStatus;
@@ -105,13 +105,13 @@ class ObserverThread : public thread
 {
 public:
     ObserverThread();
-    ObserverThread(Observer* aOb);
+    ObserverThread(ConcreteObserver* aOb);
 private:
-    Observer* aObserverObject;
+    ConcreteObserver* aObserverObject;
     
 };
 
-inline ObserverThread::ObserverThread(Observer* aOb)
+inline ObserverThread::ObserverThread(ConcreteObserver* aOb)
 {
     aObserverObject = &aOb;
 }
