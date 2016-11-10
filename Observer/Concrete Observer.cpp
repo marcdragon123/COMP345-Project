@@ -33,13 +33,14 @@ ConcreteObserver::Update(){
             cout << "Map is being updated due to " << aState;
             break;
     }
-    
-    ConcreteObserver::ConcreteObserver()
-    {
-    }
-     
-    ConcreteObserver::~ConcreteObserver()
-    {
-    }
+}   
+ 
+ConcreteObserver::ConcreteObserver()
+{
 }
+     
+ConcreteObserver::~ConcreteObserver()
+{
+}
+
 
