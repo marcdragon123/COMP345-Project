@@ -7,13 +7,14 @@ Item::Item()
     for (unsigned int i = 0; i < 9; i++) {
         enhance[i] = 0;
     }
+    type = 'I';
 } // end of Default Constructor
 
 Item::Item(char type, int e)
 {
+    this->type = type;
     // Attributes assigned based on type
     // Enchantment applied to stats affected based on type of item
-	this->type = type;
     switch (type) {
         // Helmet
         case 'h':
@@ -25,7 +26,7 @@ Item::Item(char type, int e)
             }
             break;
         }
-        // Armor
+            // Armor
         case 'a':
         {
             name = "Armor";
@@ -35,7 +36,7 @@ Item::Item(char type, int e)
             }
             break;
         }
-        // Shield
+            // Shield
         case 's':
         {
             name = "Shield";
@@ -45,7 +46,7 @@ Item::Item(char type, int e)
             }
             break;
         }
-        // Ring
+            // Ring
         case 'r':
         {
             name = "Ring";
@@ -55,7 +56,7 @@ Item::Item(char type, int e)
             }
             break;
         }
-        // Belt
+            // Belt
         case 'c':
         {
             name = "Belt";
@@ -65,7 +66,7 @@ Item::Item(char type, int e)
             }
             break;
         }
-        // Boots
+            // Boots
         case 'b':
         {
             name = "Boots";
@@ -75,7 +76,7 @@ Item::Item(char type, int e)
             }
             break;
         }
-        // Weapon
+            // Weapon
         case 'w':
         {
             name = "Weapon";
@@ -95,6 +96,7 @@ Item::Item(char type, int e)
 
 Item::Item(const Item &item)
 {
+    type = item.type;
     name = item.name;
     enchantment = item.enchantment;
     for (unsigned int i = 0; i < 9; i++) {

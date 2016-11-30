@@ -1,60 +1,119 @@
 #include "Builder.h"
+#include "Display.h"
 
 // LOAD MAP FROM FILE
-void EditBuilder::buildMap(string filename)
+void EditBuilder::buildMap(string filename, Campaign* camp)
 {
-    // Opening map file
     ifstream active;
-    active.open(filename);
+    active.open("Save_Data/Campaigns/" + filename);
 
-    int x, y;					// width and length of map
-    int dx, dy;					// door x and y link positions
-    int size;					// size of container
-    int lvl, en;				// character level and enchantment
-    string in, link, cls, name;	// map name, door link, character class and name
-    char t, t2;					// cell type, item type
+    int x, y;
+    int dx, dy;
+    int size, e;
+    int lvl, en;
+    string in, link, target;
+    char t, t2;
+    Character* choc;
 
     active >> in >> y >> x;
-    map = new Map(in, x, y);	// creating map object
+    map = new Map(in, x, y);
 
-    for (unsigned int i = 0; i < y; i++)	// go through y
+    for (unsigned int i = 0; i < y; i++)
     {
-        for (unsigned int j = 0; j < x; j++)	// go through x
+        for (unsigned int j = 0; j < x; j++)
         {
             active >> t;
-            switch (t)		// create cell based on type
-            {
-                // Empty cell
+            switch (t) {
                 case 'n':
                     map->setCell(j, i, t);
                     break;
-                    // Door cell
                 case 'd':
                     active >> link >> dx >> dy;
                     map->setCell(j, i, link, dx, dy);
                     break;
-                    // Container cell
                 case 'c':
                     map->setCell(j, i, 'c');
                     active >> size;
-                    for (int c = 0; c < size; c++)	// go through container items
+                    for (int c = 0; c < size; c++)
+                    {
+                        active >> t2 >> e;
+                        map->getCell(j, i).getContainer()->addItem(t2, e);
+                    }
+                    break;
+                case 'e':
+                    active >> target;
+                    buildCharacter(target);
+                    choc = character;
+                    map->setCell(j, i, choc);
+                    choc->setCharX(j);
+                    choc->setCharY(i);
+                    camp->addCharacter(choc);
+                    break;
+                case 'w':
+                    map->setCell(j, i, 'w');
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+    DisplayMap *display = new DisplayMap(map);
+    map->Attach(display);
+
+    active.close();
+}
+
+void PlayBuilder::buildMap(string filename, Character ch, Campaign* camp)
+{
+    ifstream active;
+    active.open("Save_Data/Campaigns/" + filename);
+
+    int x, y;
+    int dx, dy;
+    int size;
+    int lvl, en;
+    string in, link, target;
+    char t, t2;
+    Character* choc;
+
+    active >> in >> y >> x;
+    map = new Map(in, x, y);
+
+    for (unsigned int i = 0; i < y; i++)
+    {
+        for (unsigned int j = 0; j < x; j++)
+        {
+            active >> t;
+            switch (t)
+            {
+                case 'n':
+                    map->setCell(j, i, t);
+                    break;
+                case 'd':
+                    active >> link >> dx >> dy;
+                    map->setCell(j, i, link, dx, dy);
+                    break;
+                case 'c':
+                    map->setCell(j, i, 'c');
+                    active >> size;
+                    for (int c = 0; c < size; c++)
                     {
                         active >> t2 >> en;
-                        map->getCell(j, i).getContainer()->addItem(t2, en);	// adding item to container
+                        en = ch.getLevel();
+                        map->getCell(j, i).getContainer()->addItem(t2, en);
                     }
                     break;
-                    // Enemy cell
                 case 'e':
-                    active >> lvl >> cls >> name >> en;
-                    map->setCell(j, i, lvl, cls, name);
-                    map->getCell(j, i).getCharacter()->equip(Item('w', en));
-                    for (int k = 0; k < 9; k++)	// go through enemy stats
-                    {
-                        active >> en;
-                        map->getCell(j, i).getCharacter()->setStat(k, en);	// setting enemy stats
-                    }
+                    active >> target;
+                    buildCharacter(target);
+                    choc = character;
+                    choc->setLevel(ch.getLevel());
+                    choc->setEnchantments(ch.getLevel());
+                    map->setCell(j, i, choc);
+                    choc->setCharX(j);
+                    choc->setCharY(i);
+                    camp->addCharacter(choc);
                     break;
-                    // Wall cell
                 case 'w':
                     map->setCell(j, i, 'w');
                     break;
@@ -67,70 +126,36 @@ void EditBuilder::buildMap(string filename)
     active.close();
 }
 
-void PlayBuilder::buildMap(string filename, Character ch)
+void CharacterBuilder::buildCharacter(string filename)
 {
-    // Opening map file
     ifstream active;
-    active.open(filename);
+    active.open("Save_Data/Characters/" + filename);
 
-    int x, y;					// width and length of map
-    int dx, dy;					// door x and y link positions
-    int size;					// size of container
-    int lvl, en;				// character level and enchantment
-    string in, link, cls, name;	// map name, door link, character class and name
-    char t, t2;					// cell type, item type
+    string name, role, stop;
+    char type, item;
+    int lvl, cH, mH, s, sAB, dAB, enchant;
 
-    active >> in >> y >> x;
-    map = new Map(in, x, y);	// creating map object
+    active >> name >> role >> type;
+    active >> lvl >> cH >> mH;
+    character = new Character(lvl, role, name);
+    character->setCurrent(cH);
+    character->setMax(mH);
+    character->setType(type);
 
-    for (unsigned int i = 0; i < y; i++)	// go through y
+    for (unsigned int i = 0; i < 8; i++)
     {
-        for (unsigned int j = 0; j < x; j++)	// go through x
-        {
-            active >> t;
-            switch (t)		// create cell based on type
-            {
-                // Empty cell
-                case 'n':
-                    map->setCell(j, i, t);
-                    break;
-                    // Door cell
-                case 'd':
-                    active >> link >> dx >> dy;
-                    map->setCell(j, i, link, dx, dy);
-                    break;
-                    // Container cell
-                case 'c':
-                    map->setCell(j, i, 'c');
-                    active >> size;
-                    for (int c = 0; c < size; c++)
-                    {
-                        active >> t2 >> en;
-                        en = ch.getLevel();
-                        map->getCell(j, i).getContainer()->addItem(t2, en);	// adding item to container based on character level
-                    }
-                    break;
-                    // Enemy cell
-                case 'e':
-                    active >> lvl >> cls >> name >> en;
-                    lvl = ch.getLevel();
-                    en = ch.getLevel();
-                    map->setCell(j, i, lvl, cls, name);
-                    map->getCell(j, i).getCharacter()->equip(Item('w', en)); // setting enemy stats based on character level
-                    for (int k = 0; k < 9; k++)
-                    {
-                        active >> en;
-                        map->getCell(j, i).getCharacter()->setStat(k, en);
-                    }
-                    break;
-                    // Wall cell
-                case 'w':
-                    map->setCell(j, i, 'w');
-                    break;
-                default:
-                    break;
-            }
-        }
+        active >> s;
+        character->setStat(i, s);
+    }
+
+    active >> sAB >> dAB;
+    Item it;
+
+    for (unsigned int i = 0; i < 6; i++)
+    {
+        active >> item >> enchant;
+        it = Item(item, enchant);
+        character->equip(it);
     }
 
     active.close();

@@ -39,11 +39,13 @@
 #define MAP_MAP_H
 
 #include "Cell.h"
+#include "Subject.h"
 #include <string>
 
-class Map
+class Map: public Subject
 {
     int width, length;
+    bool done;
     string name;
 
     Cell ** grid;
@@ -68,9 +70,12 @@ public:
     void setCell(int, int, char);
     void setCell(int, int, string, int, int);
     void setCell(int, int, int, string, string);
+    void setCell(int, int, Character *);
     void clearFlags();
     bool checkPath(int, int);
     bool verify();
+
+    void setComplete() { done = true; }
 
     void print();
 };

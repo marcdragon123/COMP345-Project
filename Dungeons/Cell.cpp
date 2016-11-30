@@ -25,6 +25,13 @@ Type::Type(char in)
         door = NULL;
         character = NULL;
     }
+    else if (in == 'e')
+    {
+        character = new Character();
+        blocked = false;
+        container = NULL;
+        door = NULL;
+    }
     else blocked = false;
 
     obj = in;
@@ -67,6 +74,7 @@ Door::Door()
     link = "";
     x = 0;
     y = 0;
+    visited = false;
 }
 
 Door::Door(string name, int a, int b)
@@ -74,6 +82,7 @@ Door::Door(string name, int a, int b)
     link = name;
     x = a;
     y = b;
+    visited = false;
 }
 
 void Door::setLink(string name, int inx, int iny)
@@ -118,6 +127,11 @@ void Cell::setType(string name, int x, int y) { type = Type(name, x, y); }
 // Character setType
 void Cell::setType(int lvl, string cls, string name) { type = Type(lvl, cls, name); }
 
+void Cell::setType(Character * c)
+{
+    type = Type(c->getLevel(), c->getClass(), c->getName());
+    type.setCharacter(c);
+}
 void Cell::removeType() { type = NULL; } // End function removeType
 
 char Cell::getType() const { return type.getObj(); }

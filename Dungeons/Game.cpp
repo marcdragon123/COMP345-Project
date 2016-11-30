@@ -1,106 +1,85 @@
-#include "Game.h"
+///////////////////////////////////////////////////////////
+/// GAME RULES: This is the module that will allow users///
+/// to interact with the game, whether it be by playing ///
+/// or editing (Note that only the editor is currently  ///
+/// implemented). When editing, a user should be able   ///
+/// to select a campaign from a file, or create a whole ///
+/// new campaign. The campaign should then be saved     ///
+/// when editing is complete.                           ///
+///////////////////////////////////////////////////////////
 
-// CONSTRUCTOR
-Game::Game() { campaign = new Campaign(); }
+///////////////////////////////////////////////////////////
+/// DESIGN: The Game class acts as a parent class to    ///
+/// the Edit and Play classes. Which class is           ///
+/// instantiated will be determined by the client.      ///
+/// Game contains a Campaign object, and allows the     ///
+/// user to save/load a campaign to/from a file. From   ///
+/// there, it simply provides the user with prompts and ///
+/// sends messages to other classes (director/campaign).///
+///////////////////////////////////////////////////////////
 
-// DESTRUCTOR
-Game::~Game() { delete campaign; }
+///////////////////////////////////////////////////////////
+/// LIBRARIES USED:                                     ///
+/// IOSTREAM: used to allow the program to communicate  ///
+///           with the user, and demonstrate what is    ///
+///           being done.                               ///
+/// STRING:   used to simplify the naming procedure for ///
+///           maps and campaigns. Also helps with file  ///
+///           access.                                   ///
+/// FSTREAM:  used to allow the program to read and     ///
+///           save data.                                ///
+///////////////////////////////////////////////////////////
 
-// ACCESS MAP
-Map Game::getMap(int x) const
+#ifndef GAME_H
+#define GAME_H
+
+#include "Campaign.h"
+#include "Director.h"
+
+class Game
 {
-    return campaign->getMap(x);
-}
+protected:
+    Character * player;
+    Campaign * campaign;
 
-// SAVE CURRENT CAMPAIGN
-void Game::save()
+public:
+    Game();
+    ~Game();
+
+    void save();
+    void load(string);
+    void loadCharacter(string);
+
+    Map getMap(int) const;
+    bool isNPC(string);
+    void createCharacter(string, string);
+    void createCampaign(string);
+};
+
+class Edit: public Game
 {
-    string target;
-    target = campaign->getName() + ".txt";
+public:
+    Edit();
+    ~Edit();
 
-    ofstream campfile;
-    campfile.open("Save_Data/" + target);
+    void editCampaign();
+};
 
-    for (unsigned int i = 0; i < campaign->getPos(); i++)
-    {
-        campfile << campaign->getMap(i).getName() << ".txt" << '\n';
-    }
-}
-
-// LOAD MAP TO CAMPAIGN
-void Game::load(string target)
-{
-    // Initialize builder pattern objects
-    Director * direct = new Director();
-    Builder * build = new EditBuilder();
-
-    // Load campaign file
-    ifstream active;
-    active.open(target);
-    string line;
-
-    // Read through each line
-    // Loading map objects into campaign object
-    while (active >> line)
-    {
-        direct->setBuilder(build);
-        direct->constructMap(line);
-        campaign->addMap(*direct->getMap());
-    }
-}
-
-// CREATE NEW CAMPAIGN FILE
-void Game::newGame()
+class Play: public Game
 {
 
-}
+public:
+    Play();
+    void playCampaign();
 
-//CONSTRUCTOR / DESTRUCTOR
-Edit::Edit():Game() {}
-Edit::~Edit() { delete campaign; }
+};
 
-
-// RESET CAMPAIGN
-void Edit::createCampaign(string name)
+class CharacterEditor : public Game
 {
-    delete campaign;
-    campaign = new Campaign(name);
-}
 
-// EDIT CAMPAIGN
-void Edit::editCampaign()
-{
-    int active;
-    char end;
-    do
-    {
-        // List maps in campaign
-        campaign->print();
-        cout << "Which Map would you like to edit? " << endl;
-        cout << "----------------------------------------" << endl;
+public:
+    CharacterEditor();
+    void editCharacter();
+};//*/
 
-        // Input target map
-        cin >> active;
-        active--;
-
-        // Create new map
-        if (active == campaign->getPos())
-            campaign->createMap();
-
-        // Modify existing
-        if (active <= campaign->getPos())
-        {
-            campaign->accessMap(active);
-            campaign->editMap();
-        }
-        else cout << "Please enter a valid number" << endl;
-
-        cout << "Finish editing campaign(y/n): ";
-        cin >> end;
-        if ((end == 'y') || (end == 'Y')) break;
-
-    } while (1);
-
-    this->save();
-    cout << "Saved campaign to " << campaign->getName() << ".txt" << endl;
-}
+#endif /* GAME_H */

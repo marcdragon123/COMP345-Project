@@ -21,8 +21,9 @@
 /// string:  It is used to name the items with strings ///
 ///          in order to easily access items.          ///
 //////////////////////////////////////////////////////////
-#pragma once
 
+#ifndef Item_hpp
+#define Item_hpp
 
 #include <iostream>
 #include <string>
@@ -35,10 +36,10 @@ class Item
     string name;            // Helmet, Armor, Shield, Ring, Belt, Boots, Weapon
     int enchantment;        // Enchantment associated to item
     // Enhancement on characters abilities
-    int enhance[9] = {0, 0, 0, 0, 0, 0, 0, 0, 0};   // [STR, DEX, CON, INT, WIS, CHA, AC, ATK, DMG]
-    
+    int enhance[9];   // [STR, DEX, CON, INT, WIS, CHA, AC, ATK, DMG]
+
 public:
-    
+
     Item();                 // Default Constructor
     Item(char, int);        // Constructor with Type and Enchantment
     Item(const Item&);      // Copy Constructor
@@ -50,5 +51,7 @@ public:
     int * getEnhancement();
 
     void setName(string);   // Set specific name to item
+    void setEnchantment(int e) {enchantment = e;}
 };
 
+#endif /* Item_hpp */

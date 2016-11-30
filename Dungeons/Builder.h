@@ -1,35 +1,9 @@
-///////////////////////////////////////////////////////////
-/// GAME RULES: Given a file name, an identical copy of ///
-/// the saved map must be created, either to play or to ///
-/// edit.									            ///
-///////////////////////////////////////////////////////////
-
-///////////////////////////////////////////////////////////
-/// DESIGN: The Builder class contains a pointer to a 	///
-/// map object, and can return such pointer. It also 	///
-///	contains a pure virtual function buildMap(string)	///
-/// that is implemented in builders two inherited		///
-///	classes ; EditBuilder and PlayBuilder.				///
-///	They both create a map based on the maps text file, ///
-/// reading from a file and accordingly building the 	///
-/// world. In addition PlayBuilder, when building the 	///
-/// map, levels it according to the player's level.		///
-///////////////////////////////////////////////////////////
-
-///////////////////////////////////////////////////////////
-/// LIBRARIES USED:                                     ///
-/// IOSTREAM: used to display information so that users ///
-///           can see what is happening.                ///
-/// STRING:   used to simplify the tracking of campaign ///
-///           and map names.                            ///
-/// FSTREAM:  used to read maps to files				///
-///////////////////////////////////////////////////////////
-
 #ifndef Builder_h
 #define Builder_h
 
 #include <iostream>
 #include <fstream>
+#include "Campaign.h"
 #include "Map.h"
 
 class Builder
@@ -37,23 +11,39 @@ class Builder
 
 protected:
     Map * map;
+    Character * character;
 public:
-    Map * getMap() { return map;}
-    virtual void buildMap(string) = 0;
+    Map * getMap() {return map;}
+    Character * getCharacter() {return character;}
+    virtual void buildMap(string, Campaign*) = 0;
+    virtual void buildMap(string, Character, Campaign*) = 0;
+    virtual void buildCharacter(string) = 0;
 };
 
 class EditBuilder : public Builder
 {
 
 public:
-    void buildMap(string);
+    void buildMap(string, Campaign*);
+    void buildMap(string, Character, Campaign*) {}
+    void buildCharacter(string filename) {}
 };
 
 class PlayBuilder : public Builder
 {
 
 public:
-    void buildMap(string, Character);
+    void buildMap(string, Campaign*) {}
+    void buildMap(string, Character, Campaign*);
+    void buildCharacter(string filename) {}
 };
 
+class CharacterBuilder : public Builder
+{
+
+public:
+    void buildMap(string, Campaign*) {}
+    void buildMap(string, Character, Campaign*) {}
+    void buildCharacter(string);
+};
 #endif /* Builder_h */

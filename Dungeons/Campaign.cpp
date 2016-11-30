@@ -1,218 +1,384 @@
-#include "Campaign.h"
+#include "Character.h"
+#include "Strategy.h"
 
-
-// CONSTRUCTOR
-Campaign::Campaign()
+Character::Character()
 {
-    campaign = new Map[64];
     name = "DEFAULT";
-}
-
-Campaign::Campaign(string in)
-{
-campaign = new Map[64];
-name = in;
-}
-
-// DESTRUCTOR
-Campaign::~Campaign()
-{
-    delete [] campaign;
-}
-
-// SETS ACTIVE MAP
-void Campaign::accessMap(int in)
-{
-    current = in;
-}
-
-// USER ADD MAP TO CAMPAIGN
-void Campaign::createMap()
-{
-    int x, y;
-    string name;
-    cout << "Input map width: ";
-    cin >> x;
-    cout << "Input map length: ";
-    cin >> y;
-    cout << "Enter map name: ";
-    cin >> name;
-    // Initialize Map //
-    campaign[pos] = Map(name, x, y);
-    cout << "Map generated" << endl;
-
-    // If map is first map in campaign
-    if (pos == 0)
-    {
-        cout << "Enter the coordinates of the start: " << endl;
-        cin >> x;
-        cin >> y;
-        campaign[pos].setCell(x-1, y-1, "CAMPAIGN_START", 0, 0);
+    role = "fighter";
+    level = 1;
+    attackNum = 1;
+    Dice d = Dice();
+    int temp[7] = { 12, 12, 12, 12, 12, 12, 0};	// default stat distribution
+    for (unsigned int i = 0; i < 7; i++) {
+        stats[i] = temp[i];
     }
-    pos++;
-}
+    updateCharacter();//set currentHealth, armor class, damage bonus, and attack bonuses
+    currentHealth = maxHealth;
+    setType('e');
+} // end default constructor
 
-// USER EDIT EXISTING MAP
-void Campaign::editMap()
+Character::Character(int lvl, string n)
 {
-    int x1, y1, x2, y2, type, map;
-    char end;
-    do
+    name = n;
+    role = "fighter";
+    level = lvl;
+    attackNum = 0;
+
+    for (unsigned int i = 1; i <= level; i+=5)
+        attackNum += 1;
+
+    Dice d = Dice();
+    int r[4];
+
+    for (unsigned int i = 0; i < 6; i++)
     {
-        // Shows current map state
-        campaign[current].print();
-        cout << "Enter coordinates of cell to modify (row, column): " << endl;
-        cin >> y1;
-        cin >> x1;
-        x1--;
-        y1--;
+        for (unsigned int j = 0; j < 4; j++)
+            r[j] = d.roll(1, 6);
+        int temp;
+        for (unsigned int j = 0; j < 4; j++)
+            for (unsigned int k = 1; k < 4; k++)
+            {
+                if (r[j] < r[k])
+                {
+                    temp = r[k];
+                    r[k] = r[j];
+                    r[j] = temp;
+                }
+            }
+        stats[i] = r[0] + r[1] + r[3];  // randomly allocates skill points
+    }
+    updateCharacter(); //set currentHealth, armor class, damage bonus, and attack bonuses
+    currentHealth = maxHealth;
+    setType('e');
+} // end constructor
 
-        cout << "What would you like this cell to be?" << endl;
-        cout << "1. Wall" << endl << "2. Container" << endl;
-        cout << "3. Empty" << endl << "4. Door" << endl;
-        cout << "5. Enemy" << endl;
-        cin >> type;
+Character::Character(int lvl, string cls, string n)
+{
+    name = n;
+    role = cls;
+    level = lvl;
+    attackNum = 0;
 
-        switch (type)
+    for (unsigned int i = 1; i <= level; i+=5)
+        attackNum += 1;
+
+    Dice d = Dice();
+    int r[4];
+    int tempstat[6];
+
+    for (unsigned int i = 0; i < 6; i++)
+    {
+        for (unsigned int j = 0; j < 4; j++)
+            r[j] = d.roll(1, 6);
+        int temp;
+        for (unsigned int j = 0; j < 4; j++)
+            for (unsigned int k = 1; k < 4; k++)
+            {
+                if (r[j] < r[k])
+                {
+                    temp = r[k];
+                    r[k] = r[j];
+                    r[j] = temp;
+                }
+            }
+        tempstat[i] = r[0] + r[1] + r[3];  // randomly allocates skill points
+    }
+
+    sort(tempstat, tempstat + 6);
+
+    if (role == "Bully")
+    {
+        stats[0] = tempstat[5];
+        stats[2] = tempstat[4];
+        stats[1] = tempstat[3];
+        stats[3] = tempstat[2];
+        stats[5] = tempstat[1];
+        stats[4] = tempstat[0];
+    }
+    else if (role == "Nimble")
+    {
+        stats[1] = tempstat[5];
+        stats[2] = tempstat[4];
+        stats[0] = tempstat[3];
+        stats[3] = tempstat[2];
+        stats[5] = tempstat[1];
+        stats[4] = tempstat[0];
+    }
+    else if (role == "Tank")
+    {
+        stats[2] = tempstat[5];
+        stats[1] = tempstat[4];
+        stats[0] = tempstat[3];
+        stats[3] = tempstat[2];
+        stats[5] = tempstat[1];
+        stats[4] = tempstat[0];
+    }
+    updateCharacter();              //set currentHealth, armor class, damage bonus, and attack bonuses
+    currentHealth = maxHealth;	// AC = base + dex modifier
+    setType('e');
+} // end constructor
+
+void Character::updateCharacter() {
+    maxHealth = 10 + this->mod(stats[2]) + level;   // HP = base + constitution modifier
+    stats[6] = 10 + this->mod(stats[1]);            // AC = base + dex modifier
+    updateAttackBonuses();
+}
+
+
+//! Implementation of the verification of a newly created Character
+//! @return bool value, true of the character is valid (stats should be in the 3-18 range for a new character), false if invalid.
+bool Character::validateNewCharacter()
+{
+    for (int i = 0; i <= 5; i++)
+        if (stats[i]<3 || stats[i]>18)
+            return false;
+    return true;
+}
+
+//! Reduces the characters current health, by the damage.
+void Character::hit(int damage) {
+    currentHealth = currentHealth - damage;
+    Notify("Character received damage");
+}
+
+int* Character::getStats() { return stats;}
+
+//!Returns the modifier of an ability.
+int Character::mod(int skillPoints)
+{
+    if (skillPoints % 2 == 1)
+        return (skillPoints - 11) / 2; //odd skillpoints need to be rounded down
+    else
+        return (skillPoints - 10) / 2;//even skillpoints don't need to be rounded down
+} // end function mod
+
+void Character::setRole(Character *me, int role)
+{
+    cout << "AA" << endl;
+    switch (role)
+    {
+        case 1:
+            me = new Character(me->getLevel(), "Bully", me->getName());
+            break;
+        case 2:
+            me = new Character(me->getLevel(), "Nimble", me->getName());
+            break;
+        case 3:
+            cout << "BB" << endl;
+            me = new Character(me->getLevel(), "Tank", me->getName());
+            cout << "CC" << endl;
+            break;
+        default:
+            break;
+    }
+}
+
+//!Change the character's level to the given value.
+void Character::setLevel(int newLevel) {
+    if (newLevel > level)
+        for (unsigned int i = level; i < newLevel; i++)
+            this->levelUp();
+    else
+    {
+        level = newLevel;
+        updateCharacter();
+        Notify("Character level set to "+ std::to_string(level));
+    }
+}
+
+//! Increases the character's level by 1. Additionally this method updates, the character's stats.
+void Character::levelUp() {
+    if (level%5 == 0 && level > 0)
+        attackNum++;        // Increase number of attack rolls every 5 levels
+
+    level++;                // Level is increased
+    Dice d = Dice();
+
+    int consMod = -5;       // Constitution modifier
+    int cons = stats[2];
+
+    for (unsigned int i = 2; i < cons; i+=2)
+        consMod++;
+
+    maxHealth += d.roll(1, 10, consMod);    // Max health increased
+    currentHealth = maxHealth;              // Current health set to max
+    strAttackBonus++;           // Attack bonus increased (Strength)
+    dexAttackBonus++;           // Attack bonus increased (Dexterity)
+    updateCharacter();
+    Notify("Character leveled up. New level is " + std::to_string(level));
+}
+
+//! Returns an array of the melle attack bonuses. Each element is an attack turn.
+//  There can be up to 4 attack turns. The number of attack turns is based on the
+//	character's level.
+int Character::getStrAttackBonus() {
+    return strAttackBonus;
+}
+
+//! Returns an array of the range attack bonuses. Each element is an attack turn.
+//  There can be up to 4 attack turns. The number of attack turns is based on the
+//	character's level.
+int Character::getDexAttackBonus() {
+    return dexAttackBonus;
+}
+
+//! This method updates the attack bonuses, becuase the ability stats have changed.
+void Character::updateAttackBonuses() {
+    setStrAttackBonus(); //Range Attacks = Base attack bonus + Dexterity modifier
+    setDexAttackBonus(); //Melee Attacks = Base attack bonus + Strength modifier
+}
+
+//! Melee Attacks = Base attack bonuses + Strength modifier
+void Character::setStrAttackBonus() {
+    int temp = -4;      // base bonus (0 stat, 1 prof bonus);
+    for (unsigned int i = 1; i < stats[0]; i += 2)
+        temp += 1;      //stat bonus
+    for (unsigned int i = 1; i <= level; i +=4)
+        temp +=1;       //proficiency bonus
+}
+
+//! Range Attack = Base attack bonus + Dexterity modifier
+void Character::setDexAttackBonus() {
+    int temp = -4;      // base bonus (0 stat, 1 prof bonus);
+    for (unsigned int i = 1; i < stats[1]; i += 2)
+        temp += 1;      //stat bonus
+    for (unsigned int i = 1; i <= level; i +=4)
+        temp +=1;       //proficiency bonus
+}
+
+void Character::setStat(int i, int x) { stats[i] = x; }
+
+int Character::getStat(int k) { return stats[k]; }
+
+Item Character::getItem(char c) const
+{
+    try
+    {
+        switch (c)
         {
-            case 1:
-                campaign[current].setCell(x1, y1, 'w');
-                break;
-            case 2:
-                campaign[current].setCell(x1, y1, 'c');
-                break;
-            case 3:
-                campaign[current].setCell(x1, y1, 'n');
-                break;
-            case 4:
-                for (unsigned int i = 0; i < pos; i++)
-                    cout << i+1 << ". " << campaign[i].getName() << endl;
-                cout << "Select a map to link to: ";
-                cin >> map;
-                campaign[map-1].print();
-                cout << "Enter the coordinates the door should link to: ";
-                cin >> x2;
-                cin >> y2;
-                x2--;
-                y2--;
-                campaign[map-1].setCell(x2, y2, campaign[current].getName(), x1, x2);
-                campaign[current].setCell(x1, y1, campaign[map-1].getName(), x2, y2);
-                break;
-            case 5:
-                campaign[current].setCell(x1, y1, 'e');
-                break;
+            case 'a':
+                return armor;
+            case 'h':
+                return helmet;
+            case 'b':
+                return boots;
+            case 's':
+                return shield;
+            case 'w':
+                return weapon;
+            case 'r':
+                return ring;
             default:
-                break;
+                throw "No item of such type";
         }
-        cout << "Current Map: " << endl;
-        campaign[current].print();
-
-        cout << "Continue editing map? (y/n): ";
-        cin >> end;
-        if ((end == 'n') || (end == 'N'))
+    } catch (char const* error) {
+        cout << error << endl;
+    }
+}
+string Character::getClass() const { return role; }
+void Character::equip(Item gear)
+{
+    switch (gear.getType())					// case for each type of equippable item
+    {
+        case 'h':
         {
-            if (campaign[current].verify())
-                break;
-            else
+            for (unsigned int i = 0; i < 9; i++)
             {
-                cout << "This map does not have a valid exit" << endl;
-                cout << "Are you sure you want to exit? (y/n): ";
-                cin >> end;
-                if ((end == 'y') || (end == 'Y')) break;
+                stats[i] -= helmet.getEnhancement()[i];	// removes stat bonus from currently equipped item
+                stats[i] += gear.getEnhancement()[i];	// adds new stat bonus
             }
+            helmet = gear;								// replaces old item with new item
+            break;
         }
-    } while (1);
-    // Updates map when finished
-    saveMap();
-}
-
-// SAVE MAP TO FILE
-void Campaign::saveMap() const
-{
-    // Formats file name, and opens map file (creates if new)
-    string target;
-    target = campaign[current].getName() +".txt";
-    ofstream active;
-    active.open("Save_Data/" + target);
-
-    // Writes map name
-    active << campaign[current].getName() << '\n';
-
-    // Writes dimensions
-    active << campaign[current].getLength() << ' ';
-    active << campaign[current].getWidth() << '\n';
-
-    // Runs through each cell and writes contents
-    for (unsigned int i = 0; i < campaign[current].getLength(); i++)
-        for (unsigned int j = 0; j < campaign[current].getWidth(); j++)
+        case 'a':
         {
-            active << campaign[current].getCell(j, i).getType();
-            switch (campaign[current].getCell(j, i).getType())
+            for (unsigned int i = 0; i < 9; i++)
             {
-                case 'n':
-                    active << '\n';
-                    break;
-                case 'd':
-                    active << ' ' << campaign[current].getCell(j, i).getDoor()->getLink();
-                    active << ' ' << campaign[current].getCell(j, i).getDoor()->getX();
-                    active << ' ' << campaign[current].getCell(j, i).getDoor()->getY();
-                    active << '\n';
-                    break;
-                case 'c':
-                    active << ' ' << campaign[current].getCell(j, i).getContainer()->getSize();
-                    for (unsigned int k = 0; k < campaign[current].getCell(j, i).getContainer()->getSize(); k++) {
-                        active << '\n' << campaign[current].getCell(j, i).getContainer()->getItem(k).getType();
-                        active << ' ' << campaign[current].getCell(j, i).getContainer()->getItem(k).getEnchantment();
-                    }
-                    active << '\n';
-                    break;
-                case 'e':
-                    active << ' ' << campaign[current].getCell(j, i).getCharacter()->getLevel();
-                    active << ' ' << campaign[current].getCell(j, i).getCharacter()->getClass();
-                    active << ' ' << campaign[current].getCell(j, i).getCharacter()->getName();
-                    active << ' ' << campaign[current].getCell(j, i).getCharacter()->getItem('w').getEnchantment();
-                    for (unsigned int k = 0; k < 9; k++)
-                        active << ' ' << campaign[current].getCell(j, i).getCharacter()->getStat(k);
-                    active << '\n';
-                    break;
-                case 'w':
-                    active << '\n';
-                    break;
-                default:
-                    break;
+                stats[i] -= armor.getEnhancement()[i];	// removes stat bonus from currently equipped item
+                stats[i] += gear.getEnhancement()[i];	// adds new stat bonus
             }
+            armor = gear;
+            break;
         }
-    // Confirmation message
-    cout << "Map saved to " << target << endl;
-    active.close();
+        case 'b':
+        {
+            for (unsigned int i = 0; i < 9; i++)
+            {
+                stats[i] -= boots.getEnhancement()[i];	// removes stat bonus from currently equipped item
+                stats[i] += gear.getEnhancement()[i];	// adds new stat bonus
+            }
+            boots = gear;
+            break;
+        }
+        case 's':
+        {
+            for (unsigned int i = 0; i < 9; i++)
+            {
+                stats[i] -= shield.getEnhancement()[i];	// removes stat bonus from currently equipped item
+                stats[i] += gear.getEnhancement()[i];	// adds new stat bonus
+            }
+            shield = gear;
+            break;
+        }
+        case 'r':
+        {
+            for (unsigned int i = 0; i < 9; i++)
+            {
+                stats[i] -= ring.getEnhancement()[i];	// removes stat bonus from currently equipped item
+                stats[i] += gear.getEnhancement()[i];	// adds new stat bonus
+            }
+            ring = gear;
+            break;
+        }
+        case 'w':
+        {
+            for (unsigned int i = 0; i < 9; i++)
+            {
+                stats[i] -= weapon.getEnhancement()[i];	// removes stat bonus from currently equipped item
+                stats[i] += gear.getEnhancement()[i];	// adds new stat bonus
+            }
+            weapon = gear;
+            break;
+        }
+        default: cout << "INVALID ITEM" << endl;
+    }
+    Notify("Character equipped item");
+} // end function equip
+
+string Character::getName() const { return name; }
+
+void Character::setType(char t)
+{
+    type = t;
+    if (t == 'p')
+        this->setStrategy(new HumanPlayerStrategy());
+    else if (t == 'e')
+        this->setStrategy(new AggressorStrategy());
+    else
+        this->setStrategy(new FriendlyStrategy());
 }
 
-// ADDS EXISTING MAP
-void Campaign::addMap(Map & loaded)
+void Character::setEnchantments(int e)
 {
-    campaign[pos] = loaded;
-    pos++;
+    armor.setEnchantment(e);
+    helmet.setEnchantment(e);
+    boots.setEnchantment(e);
+    shield.setEnchantment(e);
+    weapon.setEnchantment(e);
+    ring.setEnchantment(e);
 }
 
-string Campaign::getName() const { return name; }
-
-// ACCESS MAP
-Map Campaign::getMap(int x) const
+void Character::setStrategy(Strategy * strat)
 {
-    return campaign[x];
+    strategy = strat;
 }
 
-// ACCESS LAST MAP
-int Campaign::getPos() const
+void Character::move(int x, int y)
 {
-    return pos;
+    strategy->move(x, y, this);
 }
 
-// LIST MAPS
-void Campaign::print() const
+void Character::attack(Character * them)
 {
-    unsigned int i = 0;
-    for (; i < pos; i++)
-        cout << i+1 << ". " << campaign[i].getName() << endl;
-    cout << i+1 << ". New Map" << endl;
+    strategy->attack(this, them);
 }

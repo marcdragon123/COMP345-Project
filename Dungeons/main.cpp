@@ -1,13 +1,12 @@
-#include <iostream>
-#include "Game.h"
+#include "Menu.h"
+#include "Display.h"
 
 int main() {
 
-    Edit * game;
-    game = new Edit();
-
-    game->createCampaign();
-    game->editCampaign();
+    Menu * main = new Menu();
+    cout << "Game initialized" << endl;
+    main->mainMenu();
+    cout << "Thank you for playing" << endl;
 
     return 0;
 }

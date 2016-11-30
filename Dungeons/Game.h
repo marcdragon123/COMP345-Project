@@ -39,6 +39,7 @@
 class Game
 {
 protected:
+    Character * player;
     Campaign * campaign;
 
 public:
@@ -47,10 +48,12 @@ public:
 
     void save();
     void load(string);
-    void loadCampaign(string);
-    void newGame();
+    void loadCharacter(string);
 
     Map getMap(int) const;
+    bool isNPC(string);
+    void createCharacter(string, string);
+    void createCampaign(string);
 };
 
 class Edit: public Game
@@ -59,10 +62,7 @@ public:
     Edit();
     ~Edit();
 
-    void createCampaign(string);
     void editCampaign();
-    //bool verify() const;
-    //bool checkPath(int, int, int) const;
 };
 
 class Play: public Game
@@ -70,7 +70,16 @@ class Play: public Game
 
 public:
     Play();
-    void play();
+    void playCampaign();
+
 };
+
+class CharacterEditor : public Game
+{
+
+public:
+    CharacterEditor();
+    void editCharacter();
+};//*/
 
 #endif /* GAME_H */

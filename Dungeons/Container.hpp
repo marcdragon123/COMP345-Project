@@ -47,4 +47,3 @@ public:
 
 #endif /* Container_hpp */
 
-

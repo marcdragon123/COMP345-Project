@@ -9,6 +9,7 @@ Map::Map()
     grid = new Cell*[length]();
     for (unsigned int i = 0; i < length; i++)
         grid[i] = new Cell[width];
+    done = false;
 } // End default constructor
 
 Map::Map(string in, int x, int y)
@@ -20,6 +21,7 @@ Map::Map(string in, int x, int y)
     grid = new Cell*[length]();
     for (unsigned int i = 0; i < length; i++)
         grid[i] = new Cell[width];
+    done = false;
 }
 
 Map::~Map()
@@ -41,16 +43,24 @@ void Map::setName(string in)
 void Map::setCell(int x, int y, char c)
 {
     grid[x][y].setType(c);
+    Notify("Cell Set");
 } // End function setCell
 
 void Map::setCell(int x1, int y1, string name, int x2, int y2)
 {
     grid[x1][y1].setType(name, x2, y2);
-}
+    Notify("Cell Set");
+} // Door Set Cell
 
 void Map::setCell(int x, int y, int lvl, string cls, string name)
 {
     grid[x][y].setType(lvl, cls, name);
+    Notify("Cell Set");
+} // Character setCell
+
+void Map::setCell(int x, int y, Character * c)
+{
+    grid[x][y].setType(c);
 }
 
 void Map::clearFlags()
@@ -96,6 +106,28 @@ bool Map::verify()
         }
     return false;
 } // End function test
+
+int Map::getStartX() const
+{
+    for (unsigned int i = 0; i < length; i++)
+        for (unsigned int j = 0; j < width; j++)
+        {
+            if (grid[i][j].getDoor()->getLink() == "CAMPAIGN_START")
+                return j;
+        }
+    return 0;
+}
+
+int Map::getStartY() const
+{
+    for (unsigned int i = 0; i < length; i++)
+        for (unsigned int j = 0; j < width; j++)
+        {
+            if (grid[i][j].getDoor()->getLink() == "CAMPAIGN_START")
+                return i;
+        }
+    return 0;
+}
 
 void Map::print()
 {
@@ -160,27 +192,5 @@ void Map::print()
     for (int i = 0; i < width; i++)
         cout << "--------";
     cout << "-" << endl;
-}
-
-int Map::getStartX() const
-{
-    for (unsigned int i = 0; i < length; i++)
-        for (unsigned int j = 0; j < width; j++)
-        {
-            if (grid[i][j].getDoor()->getLink() == "CAMPAIGN_START")
-                return j;
-        }
-    return 0;
-}
-
-int Map::getStartY() const
-{
-    for (unsigned int i = 0; i < length; i++)
-        for (unsigned int j = 0; j < width; j++)
-        {
-            if (grid[i][j].getDoor()->getLink() == "CAMPAIGN_START")
-                return i;
-        }
-    return 0;
-}
+}//*/
 

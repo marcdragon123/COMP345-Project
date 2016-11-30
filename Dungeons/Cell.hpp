@@ -42,14 +42,17 @@ class Door
 {
     string link;
     int x,y;
+    bool visited;
 
 public:
     Door();
     Door(string, int, int);
 
     void setLink(string, int, int);
+    void setVisited() {visited = true; }
 
     string getLink() const;
+    bool getVisited() const {return visited;}
     int getX() const;
     int getY() const;
 };
@@ -73,6 +76,8 @@ public:
     Container * getContainer() const;
     Character * getCharacter() const;
     bool isBlocked() const;
+
+    void setCharacter(Character * c) { character = c; }
 
 };
 
@@ -101,6 +106,7 @@ public:
     void setType(char);
     void setType(string, int, int);
     void setType(int, string, string);
+    void setType(Character *);
     void removeType();
 };
 
