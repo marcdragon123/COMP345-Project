@@ -1,384 +1,811 @@
-#include "Character.h"
-#include "Strategy.h"
+#include "Campaign.h"
+#include "Director.h"
 
-Character::Character()
+// CONSTRUCTOR
+Campaign::Campaign()
 {
+    characters = new Character*[64];
+    numChars = 0;
+    campaign = new Map[64];
     name = "DEFAULT";
-    role = "fighter";
-    level = 1;
-    attackNum = 1;
-    Dice d = Dice();
-    int temp[7] = { 12, 12, 12, 12, 12, 12, 0};	// default stat distribution
-    for (unsigned int i = 0; i < 7; i++) {
-        stats[i] = temp[i];
-    }
-    updateCharacter();//set currentHealth, armor class, damage bonus, and attack bonuses
-    currentHealth = maxHealth;
-    setType('e');
-} // end default constructor
+}
 
-Character::Character(int lvl, string n)
+Campaign::Campaign(string in)
 {
-    name = n;
-    role = "fighter";
-    level = lvl;
-    attackNum = 0;
+    cout << "J";
+    characters = new Character*[64];
+    numChars = 0;
+    cout << "K";
+    campaign = new Map[64];
+    name = in;
+}
 
-    for (unsigned int i = 1; i <= level; i+=5)
-        attackNum += 1;
-
-    Dice d = Dice();
-    int r[4];
-
-    for (unsigned int i = 0; i < 6; i++)
-    {
-        for (unsigned int j = 0; j < 4; j++)
-            r[j] = d.roll(1, 6);
-        int temp;
-        for (unsigned int j = 0; j < 4; j++)
-            for (unsigned int k = 1; k < 4; k++)
-            {
-                if (r[j] < r[k])
-                {
-                    temp = r[k];
-                    r[k] = r[j];
-                    r[j] = temp;
-                }
-            }
-        stats[i] = r[0] + r[1] + r[3];  // randomly allocates skill points
-    }
-    updateCharacter(); //set currentHealth, armor class, damage bonus, and attack bonuses
-    currentHealth = maxHealth;
-    setType('e');
-} // end constructor
-
-Character::Character(int lvl, string cls, string n)
+// DESTRUCTOR
+Campaign::~Campaign()
 {
-    name = n;
-    role = cls;
-    level = lvl;
-    attackNum = 0;
-
-    for (unsigned int i = 1; i <= level; i+=5)
-        attackNum += 1;
-
-    Dice d = Dice();
-    int r[4];
-    int tempstat[6];
-
-    for (unsigned int i = 0; i < 6; i++)
-    {
-        for (unsigned int j = 0; j < 4; j++)
-            r[j] = d.roll(1, 6);
-        int temp;
-        for (unsigned int j = 0; j < 4; j++)
-            for (unsigned int k = 1; k < 4; k++)
-            {
-                if (r[j] < r[k])
-                {
-                    temp = r[k];
-                    r[k] = r[j];
-                    r[j] = temp;
-                }
-            }
-        tempstat[i] = r[0] + r[1] + r[3];  // randomly allocates skill points
-    }
-
-    sort(tempstat, tempstat + 6);
-
-    if (role == "Bully")
-    {
-        stats[0] = tempstat[5];
-        stats[2] = tempstat[4];
-        stats[1] = tempstat[3];
-        stats[3] = tempstat[2];
-        stats[5] = tempstat[1];
-        stats[4] = tempstat[0];
-    }
-    else if (role == "Nimble")
-    {
-        stats[1] = tempstat[5];
-        stats[2] = tempstat[4];
-        stats[0] = tempstat[3];
-        stats[3] = tempstat[2];
-        stats[5] = tempstat[1];
-        stats[4] = tempstat[0];
-    }
-    else if (role == "Tank")
-    {
-        stats[2] = tempstat[5];
-        stats[1] = tempstat[4];
-        stats[0] = tempstat[3];
-        stats[3] = tempstat[2];
-        stats[5] = tempstat[1];
-        stats[4] = tempstat[0];
-    }
-    updateCharacter();              //set currentHealth, armor class, damage bonus, and attack bonuses
-    currentHealth = maxHealth;	// AC = base + dex modifier
-    setType('e');
-} // end constructor
-
-void Character::updateCharacter() {
-    maxHealth = 10 + this->mod(stats[2]) + level;   // HP = base + constitution modifier
-    stats[6] = 10 + this->mod(stats[1]);            // AC = base + dex modifier
-    updateAttackBonuses();
+    delete [] characters;
+    delete [] campaign;
 }
 
-
-//! Implementation of the verification of a newly created Character
-//! @return bool value, true of the character is valid (stats should be in the 3-18 range for a new character), false if invalid.
-bool Character::validateNewCharacter()
+bool Campaign::isNPC(string target)
 {
-    for (int i = 0; i <= 5; i++)
-        if (stats[i]<3 || stats[i]>18)
-            return false;
-    return true;
+    cout << "B" << endl;
+    string type;
+    ifstream active;
+    active.open("Save_Data/Characters/" + target);
+    for (unsigned int i = 0; i < 3 ; i++)
+        active >> type;
+    cout << "Type: " << type << endl;
+    if (type != "p")
+        return true;
+    else return false;
 }
 
-//! Reduces the characters current health, by the damage.
-void Character::hit(int damage) {
-    currentHealth = currentHealth - damage;
-    Notify("Character received damage");
+// SETS ACTIVE MAP
+void Campaign::accessMap(int in)
+{
+    current = in;
+    campaign[current].Notify("Map Initialized");
 }
 
-int* Character::getStats() { return stats;}
-
-//!Returns the modifier of an ability.
-int Character::mod(int skillPoints)
+// USER ADD MAP TO CAMPAIGN
+void Campaign::createMap()
 {
-    if (skillPoints % 2 == 1)
-        return (skillPoints - 11) / 2; //odd skillpoints need to be rounded down
-    else
-        return (skillPoints - 10) / 2;//even skillpoints don't need to be rounded down
-} // end function mod
+    int x, y;
+    string name;
+    cout << "Input map width: ";
+    cin >> x;
+    cout << "Input map length: ";
+    cin >> y;
+    cout << "Enter map name: ";
+    cin >> name;
+    // Initialize Map //
+    Map * map = new Map(name, x, y);
+    DisplayMap *display = new DisplayMap(map);
+    map->Attach(display);
+    campaign[pos] = *map;
 
-void Character::setRole(Character *me, int role)
-{
-    cout << "AA" << endl;
-    switch (role)
+    // If map is first map in campaign
+    if (pos == 0)
     {
-        case 1:
-            me = new Character(me->getLevel(), "Bully", me->getName());
-            break;
-        case 2:
-            me = new Character(me->getLevel(), "Nimble", me->getName());
-            break;
-        case 3:
-            cout << "BB" << endl;
-            me = new Character(me->getLevel(), "Tank", me->getName());
-            cout << "CC" << endl;
-            break;
-        default:
-            break;
+        cout << "Enter the coordinates of the start: " << endl;
+        cin >> x;
+        cin >> y;
+        campaign[pos].setCell(x-1, y-1, "CAMPAIGN_START", 0, 0);
     }
+    pos++;
 }
 
-//!Change the character's level to the given value.
-void Character::setLevel(int newLevel) {
-    if (newLevel > level)
-        for (unsigned int i = level; i < newLevel; i++)
-            this->levelUp();
-    else
-    {
-        level = newLevel;
-        updateCharacter();
-        Notify("Character level set to "+ std::to_string(level));
-    }
-}
-
-//! Increases the character's level by 1. Additionally this method updates, the character's stats.
-void Character::levelUp() {
-    if (level%5 == 0 && level > 0)
-        attackNum++;        // Increase number of attack rolls every 5 levels
-
-    level++;                // Level is increased
-    Dice d = Dice();
-
-    int consMod = -5;       // Constitution modifier
-    int cons = stats[2];
-
-    for (unsigned int i = 2; i < cons; i+=2)
-        consMod++;
-
-    maxHealth += d.roll(1, 10, consMod);    // Max health increased
-    currentHealth = maxHealth;              // Current health set to max
-    strAttackBonus++;           // Attack bonus increased (Strength)
-    dexAttackBonus++;           // Attack bonus increased (Dexterity)
-    updateCharacter();
-    Notify("Character leveled up. New level is " + std::to_string(level));
-}
-
-//! Returns an array of the melle attack bonuses. Each element is an attack turn.
-//  There can be up to 4 attack turns. The number of attack turns is based on the
-//	character's level.
-int Character::getStrAttackBonus() {
-    return strAttackBonus;
-}
-
-//! Returns an array of the range attack bonuses. Each element is an attack turn.
-//  There can be up to 4 attack turns. The number of attack turns is based on the
-//	character's level.
-int Character::getDexAttackBonus() {
-    return dexAttackBonus;
-}
-
-//! This method updates the attack bonuses, becuase the ability stats have changed.
-void Character::updateAttackBonuses() {
-    setStrAttackBonus(); //Range Attacks = Base attack bonus + Dexterity modifier
-    setDexAttackBonus(); //Melee Attacks = Base attack bonus + Strength modifier
-}
-
-//! Melee Attacks = Base attack bonuses + Strength modifier
-void Character::setStrAttackBonus() {
-    int temp = -4;      // base bonus (0 stat, 1 prof bonus);
-    for (unsigned int i = 1; i < stats[0]; i += 2)
-        temp += 1;      //stat bonus
-    for (unsigned int i = 1; i <= level; i +=4)
-        temp +=1;       //proficiency bonus
-}
-
-//! Range Attack = Base attack bonus + Dexterity modifier
-void Character::setDexAttackBonus() {
-    int temp = -4;      // base bonus (0 stat, 1 prof bonus);
-    for (unsigned int i = 1; i < stats[1]; i += 2)
-        temp += 1;      //stat bonus
-    for (unsigned int i = 1; i <= level; i +=4)
-        temp +=1;       //proficiency bonus
-}
-
-void Character::setStat(int i, int x) { stats[i] = x; }
-
-int Character::getStat(int k) { return stats[k]; }
-
-Item Character::getItem(char c) const
+// USER EDIT EXISTING MAP
+void Campaign::editMap()
 {
-    try
+    ifstream active;
+    string line;
+    Director * direct = new Director();
+    Builder * build = new CharacterBuilder();
+    int file = 1;
+    int s = 0;
+    int x1, y1, x2, y2, type, map;
+    char end, tp;
+    string name;
+    do
     {
-        switch (c)
+        // Shows current map state
+        //campaign[current].print();
+        cout << "Enter coordinates of cell to modify (row, column): " << endl;
+        cin >> y1;
+        cin >> x1;
+        x1--;
+        y1--;
+
+        cout << "What would you like this cell to be?" << endl;
+        cout << "1. Wall" << endl << "2. Container" << endl;
+        cout << "3. Empty" << endl << "4. Door" << endl;
+        cout << "5. NPC" << endl;
+        cin >> type;
+
+        switch (type)
         {
-            case 'a':
-                return armor;
-            case 'h':
-                return helmet;
-            case 'b':
-                return boots;
-            case 's':
-                return shield;
-            case 'w':
-                return weapon;
-            case 'r':
-                return ring;
+            case 1:
+                campaign[current].setCell(x1, y1, 'w');
+                break;
+            case 2:
+                campaign[current].setCell(x1, y1, 'c');
+                while (1)
+                {
+                    cout << "Would you like to add an item to chest? (y/n)" << endl;
+                    cin >> end;
+                    if (end == 'N' || end == 'n')
+                        break;
+                    else if (end == 'Y' || end == 'y')
+                    {
+                        cout << "Select item type:" << endl;
+                        cout << "1. Armor" << endl;
+                        cout << "2. Helmet" << endl;
+                        cout << "3. Boots" << endl;
+                        cout << "4. Shield" << endl;
+                        cout << "5. Weapon" << endl;
+                        cout << "6. Ring" << endl;
+                        cin >> type;
+                        switch (type)
+                        {
+                            case 1:
+                                tp = 'a';
+                                break;
+                            case 2:
+                                tp = 'h';
+                                break;
+                            case 3:
+                                tp = 'b';
+                                break;
+                            case 4:
+                                tp = 's';
+                                break;
+                            case 5:
+                                tp = 'w';
+                                break;
+                            case 6:
+                                tp = 'r';
+                                break;
+                            default:
+                                break;
+                        }
+
+                        campaign[current].getCell(x1, y1).getContainer()->addItem(tp, 1);
+                    }
+                }
+                break;
+            case 3:
+                campaign[current].setCell(x1, y1, 'n');
+                break;
+            case 4:
+                for (unsigned int i = 0; i < pos; i++)
+                    cout << i+1 << ". " << campaign[i].getName() << endl;
+                cout << "Select a map to link to: ";
+                cin >> map;
+                //campaign[map-1].print();
+                cout << "Enter the coordinates the door should link to: ";
+                cin >> x2;
+                cin >> y2;
+                x2--;
+                y2--;
+                campaign[map-1].setCell(x2, y2, campaign[current].getName(), x1, x2);
+                campaign[current].setCell(x1, y1, campaign[map-1].getName(), x2, y2);
+                break;
+            case 5:
+                while (1)
+                {
+                    cout << "Which character would you like to add?" << endl;
+                    active.open("Save_Data/Characters/Characters.txt");
+                    while (active >> line)
+                    {
+                        if (isNPC(line))
+                            cout << file << ". " << line << endl;
+                    }
+                    cin >> s;
+                    active.clear();
+                    active.seekg(0, ios::beg);
+                    if (s < file && s > 0)
+                    {
+                        for (unsigned int it = 0; it < s-1 ; it++)
+                            active >> line;
+                        direct->setBuilder(build);
+                        direct->constructCharacter(line);
+                        campaign[current].setCell(x1, y1, direct->getCharacter());
+                        addCharacter(direct->getCharacter());
+                    }
+                    else cerr << "Please enter a valid input" << endl;
+                }
+                break;
             default:
-                throw "No item of such type";
+                break;
         }
-    } catch (char const* error) {
-        cout << error << endl;
-    }
+        //campaign[current].Notify("Cell set");
+
+
+        cout << "Continue editing map? (y/n): ";
+        cin >> end;
+        if ((end == 'n') || (end == 'N'))
+        {
+            if (campaign[current].verify())
+                break;
+            else
+            {
+                cout << "This map does not have a valid exit" << endl;
+                cout << "Are you sure you want to exit? (y/n): ";
+                cin >> end;
+                if ((end == 'y') || (end == 'Y')) break;
+            }
+        }
+    } while (1);
+    // Updates map when finished
+    saveMap();
 }
-string Character::getClass() const { return role; }
-void Character::equip(Item gear)
+
+bool Campaign::playMap()
 {
-    switch (gear.getType())					// case for each type of equippable item
+    int target;
+    int turn = 2;
+    int x, y;
+    char move;
+
+
+    for (unsigned int i = 0; i < turn+1; i++)
     {
-        case 'h':
+        i = i%turn;
+        x = characters[i]->getCharX();
+        y = characters[i]->getCharY();
+
+        // Player's Turn
+        if (characters[i]->getType() == 'p')
         {
-            for (unsigned int i = 0; i < 9; i++)
+            cout << "What would you like to do?" << endl;
+            // Forward Actions
+            if (y+1 < campaign[current].getLength())
             {
-                stats[i] -= helmet.getEnhancement()[i];	// removes stat bonus from currently equipped item
-                stats[i] += gear.getEnhancement()[i];	// adds new stat bonus
+                cout << "w. ";
+                if (campaign[current].getCell(x, y+1).getType() == 'e')
+                    cout << "Attack forward" << endl;
+                else if (campaign[current].getCell(x, y+1).getType() == 'd')
+                    if (campaign[current].getCell(x, y+1).getDoor()->getVisited())
+                        cout << "Advance to new map" << endl;
+                    else cout << "Return to previous map" << endl;
+                else if (!(campaign[current].getCell(x, y+1).isBlocked()))
+                    cout << "Move forward" << endl;\
+                else cout << "Blocked" << endl;
             }
-            helmet = gear;								// replaces old item with new item
-            break;
+            // Right Actions
+            if (x+1 < campaign[current].getWidth())
+            {
+                cout << "d. ";
+                if (campaign[current].getCell(x+1, y).getType() == 'e')
+                    cout << "Attack right" << endl;
+                else if (campaign[current].getCell(x+1, y).getType() == 'd')
+                    if (campaign[current].getCell(x+1, y).getDoor()->getVisited())
+                        cout << "Advance to new map" << endl;
+                    else cout << "Return to previous map" << endl;
+                else if (!(campaign[current].getCell(x+1, y).isBlocked()))
+                    cout << "Move right" << endl;
+                else cout << "Blocked" << endl;
+            }
+            // Backwards Actions
+            if (y-1 >= 0)
+            {
+                cout << "s. ";
+                if (campaign[current].getCell(x, y-1).getType() == 'e')
+                    cout << "Attack behind" << endl;
+                else if (campaign[current].getCell(x, y-1).getType() == 'd')
+                    if (campaign[current].getCell(x, y-1).getDoor()->getVisited())
+                        cout << "Advance to new map" << endl;
+                    else cout << "Return to previous map" << endl;
+                else if (!(campaign[current].getCell(x, y-1).isBlocked()))
+                    cout << "Move backward" << endl;
+                else cout << "Blocked" << endl;
+            }
+            // Left Actions
+            if (x-1 >= 0)
+            {
+                cout << "a. ";
+                if (campaign[current].getCell(x-1, y).getType() == 'e')
+                    cout << "Attack left" << endl;
+                else if (campaign[current].getCell(x-1, y).getType() == 'd')
+                    if (campaign[current].getCell(x-1, y).getDoor()->getVisited())
+                        cout << "Advance to new map" << endl;
+                    else cout << "Return to previous map" << endl;
+                else if (!(campaign[current].getCell(x-1, y).isBlocked()))
+                    cout << "Move left" << endl;
+                else cout << "Blocked" << endl;
+            }
+            cin >> move;
+
+            if ((move == 'M') || (move == 'm'))
+            {
+                saveMap();
+                break;
+            }//*/
+            else if ((move == 'C') || (move == 'c'))
+            {
+                //character menu
+            }
+            else if ((move == 'B') || (move == 'b'))
+            {
+                // backpack menu
+            }
+            else if ((move == 'L') || (move == 'l'))
+            {
+                // game log
+            }
+
+            // Determines move made
+            switch (move)
+            {
+                case 'w':
+                    if (y+1 < campaign[current].getLength())
+                        if (campaign[current].getCell(x, y+1).getType() == 'e')
+                        {
+                            for (unsigned int k = 1; i < turn; k++)
+                                if (characters[k]->getName() == campaign[current].getCell(x, y+1).getCharacter()->getName())
+                                {
+                                    target = k;
+                                    break;
+                                }
+                            characters[i]->attack(characters[target]);
+                        }
+                        else if (campaign[current].getCell(x, y+1).getType() == 'd')
+                        {
+                            if (!(campaign[current].getCell(x, y+1).getDoor()->getVisited()))
+                            {
+                                campaign[current].getCell(x, y+1).getDoor()->setVisited();
+                                cout << "Congratulations of completing the map!" << endl;
+                                return true;
+                            }
+                            else
+                            {
+                                cout << "Returning to previous map..." << endl;
+                                return true;
+                            }
+                        }
+                        else if (!(campaign[current].getCell(x, y+1).isBlocked()))
+                        {
+                            campaign[current].setCell(x, y+1, characters[i]);
+                            campaign[current].setCell(x, y, 'n');
+                            characters[i]->move(x, y+1);
+                        }
+                        else cout << "Passed Turn" << endl;
+                    break;
+                case 'd':
+                    if (x+1 < campaign[current].getWidth())
+                        if (campaign[current].getCell(x+1, y).getType() == 'e')
+                        {
+                            cout << campaign[current].getCell(x+1, y).getCharacter()->getName() << endl;
+                            for (unsigned int k = 1; i < turn; k++)
+                            {
+                                if (characters[k]->getName() == campaign[current].getCell(x+1, y).getCharacter()->getName())
+                                {
+                                    target = k;
+                                    break;
+                                }
+                            }
+                            characters[i]->attack(characters[target]);
+                        }
+                        else if (campaign[current].getCell(x+1, y).getType() == 'd')
+                        {
+                            if (!(campaign[current].getCell(x+1, y).getDoor()->getVisited()))
+                            {
+                                campaign[current].getCell(x+1, y).getDoor()->setVisited();
+                                cout << "Congratulations of completing the map!" << endl;
+                                return true;
+                            }
+                            else
+                            {
+                                cout << "Returning to previous map..." << endl;
+                                return true;
+                            }
+                        }
+                        else if (!(campaign[current].getCell(x+1, y).isBlocked()))
+                        {
+                            campaign[current].setCell(x+1, y, characters[i]);
+                            campaign[current].setCell(x, y, 'n');
+                            characters[i]->move(x+1, y);
+                        }
+                        else cout << "Passed Turn" << endl;
+                    break;
+                case 's':
+                    if (y-1 >= 0)
+                        if (campaign[current].getCell(x, y-1).getType() == 'e')
+                        {
+                            for (unsigned int k = 1; i < turn; k++)
+                                if (characters[k]->getName() == campaign[current].getCell(x, y-1).getCharacter()->getName())
+                                {
+                                    target = k;
+                                    break;
+                                }
+                            characters[i]->attack(characters[target]);
+                        }
+                        else if (campaign[current].getCell(x, y-1).getType() == 'd')
+                        {
+                            if (!(campaign[current].getCell(x, y-1).getDoor()->getVisited()))
+                            {
+                                campaign[current].getCell(x, y-1).getDoor()->setVisited();
+                                cout << "Congratulations of completing the map!" << endl;
+                                return true;
+                            }
+                            else
+                            {
+                                cout << "Returning to previous map..." << endl;
+                                return true;
+                            }
+                        }
+                        else if (!(campaign[current].getCell(x, y-1).isBlocked()))
+                        {
+                            campaign[current].setCell(x, y-1, characters[i]);
+                            campaign[current].setCell(x, y, 'n');
+                            characters[i]->move(x, y-1);
+                        }
+                        else cout << "Passed Turn" << endl;
+                    break;
+                case 'a':
+                    if (x-1 >= 0)
+                        if (campaign[current].getCell(x-1, y).getType() == 'e')
+                        {
+                            for (unsigned int k = 1; i < turn; k++)
+                                if (characters[k]->getName() == campaign[current].getCell(x-1, y).getCharacter()->getName())
+                                {
+                                    target = k;
+                                    break;
+                                }
+                            characters[i]->attack(characters[target]);
+                        }
+                        else if (campaign[current].getCell(x-1, y).getType() == 'd')
+                        {
+                            if (!(campaign[current].getCell(x-1, y).getDoor()->getVisited()))
+                            {
+                                campaign[current].getCell(x-1, y).getDoor()->setVisited();
+                                cout << "Congratulations of completing the map!" << endl;
+                                return true;
+                            }
+                            else
+                            {
+                                cout << "Returning to previous map..." << endl;
+                                return true;
+                            }
+                        }
+                        else if (!(campaign[current].getCell(x-1, y).isBlocked()))
+                        {
+                            campaign[current].setCell(x-1, y, characters[i]);
+                            campaign[current].setCell(x, y, 'n');
+                            characters[i]->move(x-1, y);
+                        }
+                        else cout << "Passed Turn" << endl;
+                    break;
+                default:
+                    break;
+            }
+            campaign[current].print();
         }
-        case 'a':
+
+            // Enemy's Turns
+        else if (characters[i]->getType() == 'e')
         {
-            for (unsigned int i = 0; i < 9; i++)
+            if (y < characters[0]->getCharY())
             {
-                stats[i] -= armor.getEnhancement()[i];	// removes stat bonus from currently equipped item
-                stats[i] += gear.getEnhancement()[i];	// adds new stat bonus
+                for (unsigned int j = y; j < campaign[current].getLength(); j++)
+                {
+                    if (campaign[current].getCell(x, j).isBlocked()) break;
+                    else if (j == characters[0]->getCharY())
+                    {
+                        if (campaign[current].getCell(x, y+1).getType() == 'e')
+                        {
+                            for (unsigned int k = 1; i < turn; k++)
+                            {
+                                if (characters[k]->getName() == campaign[current].getCell(x, y+1).getCharacter()->getName())
+                                {
+                                    target = k;
+                                    break;
+                                }
+                                characters[i]->attack(characters[target]);
+                                break;
+                            }
+                        }
+                        else if (campaign[current].getCell(x, j).getType() == 'e')
+                            if (campaign[current].getCell(x, j).getCharacter()->getType() == 'p')
+                            {
+                                campaign[current].setCell(x, y+1, characters[i]);
+                                campaign[current].setCell(x, y, 'n');
+                                characters[i]->move(x, y+1);
+                                break;
+                            }
+                    }
+                }
             }
-            armor = gear;
-            break;
+            else if (x < characters[0]->getCharX())
+            {
+                for (unsigned int j = x; j < campaign[current].getWidth(); j++)
+                {
+                    if (campaign[current].getCell(j, y).isBlocked()) break;
+                    else if (j == characters[0]->getCharX())
+                    {
+                        if (campaign[current].getCell(x+1, y).getType() == 'e')
+                        {
+                            for (unsigned int k = 1; i < turn; k++)
+                            {
+                                if (characters[k]->getName() == campaign[current].getCell(x+1, y).getCharacter()->getName())
+                                {
+                                    target = k;
+                                    break;
+                                }
+                                characters[i]->attack(characters[target]);
+                                break;
+                            }
+                        }
+                        else if (campaign[current].getCell(j, y).getType() == 'e')
+                            if (campaign[current].getCell(j, y).getCharacter()->getType() == 'p')
+                            {
+                                campaign[current].setCell(x+1, y, characters[i]);
+                                campaign[current].setCell(x, y, 'n');
+                                characters[i]->move(x+1, y);
+                                break;
+                            }
+                    }
+                }
+            }
+            else if (y > characters[0]->getCharY())
+            {
+                for (int j = y; j >= 0; j--)
+                {
+                    if (campaign[current].getCell(x, j).isBlocked()) break;
+                    else if (j == characters[0]->getCharY())
+                    {
+                        if (campaign[current].getCell(x, y-1).getType() == 'e')
+                        {
+                            for (unsigned int k = 1; i < turn; k++)
+                            {
+                                if (characters[k]->getName() == campaign[current].getCell(x, y-1).getCharacter()->getName())
+                                {
+                                    target = k;
+                                    break;
+                                }
+                                characters[i]->attack(characters[target]);
+                                break;
+                            }
+                        }
+                        else if (campaign[current].getCell(x, j).getType() == 'e')
+                            if (campaign[current].getCell(x, j).getCharacter()->getType() == 'p')
+                            {
+                                campaign[current].setCell(x, y-1, characters[i]);
+                                campaign[current].setCell(x, y, 'n');
+                                characters[i]->move(x, y-1);
+                                break;
+                            }
+                    }
+                }
+            }
+            else if (x > characters[0]->getCharX())
+            {
+                for (int j = x; j >= 0; j--)
+                {
+                    if (campaign[current].getCell(j, y).isBlocked()) break;
+                    else if (j == characters[0]->getCharX())
+                    {
+                        if (campaign[current].getCell(x-1, y).getType() == 'e')
+                        {
+                            for (unsigned int k = 1; i < turn; k++)
+                            {
+                                if (characters[k]->getName() == campaign[current].getCell(x-1, y).getCharacter()->getName())
+                                {
+                                    target = k;
+                                    break;
+                                }
+                                characters[i]->attack(characters[target]);
+                                break;
+                            }
+                        }
+                        else if (campaign[current].getCell(j, y).getType() == 'e')
+                            if (campaign[current].getCell(j, y).getCharacter()->getType() == 'p')
+                            {
+                                campaign[current].setCell(x-1, y, characters[i]);
+                                campaign[current].setCell(x, y, 'n');
+                                characters[i]->move(x-1, y);
+                                break;
+                            }
+                    }
+                }
+            }
         }
-        case 'b':
+
+            //Ally's Turns
+        else
         {
-            for (unsigned int i = 0; i < 9; i++)
+            if (y < characters[0]->getCharY())
             {
-                stats[i] -= boots.getEnhancement()[i];	// removes stat bonus from currently equipped item
-                stats[i] += gear.getEnhancement()[i];	// adds new stat bonus
+                for (int j = y; j < campaign[current].getLength(); j++)
+                {
+                    if (campaign[current].getCell(x, j).isBlocked()) break;
+                    else if (j == characters[0]->getCharY())
+                        if (campaign[current].getCell(x, j).getType() == 'e')
+                            if (campaign[current].getCell(x, j).getCharacter()->getType() == 'p')
+                            {
+                                campaign[current].setCell(x, y+1, characters[i]);
+                                campaign[current].setCell(x, y, 'n');
+                                characters[i]->move(x, y+1);
+                                break;
+                            }
+                }
             }
-            boots = gear;
-            break;
-        }
-        case 's':
-        {
-            for (unsigned int i = 0; i < 9; i++)
+            else if (x < characters[0]->getCharX())
             {
-                stats[i] -= shield.getEnhancement()[i];	// removes stat bonus from currently equipped item
-                stats[i] += gear.getEnhancement()[i];	// adds new stat bonus
+                for (int j = x; j < campaign[current].getWidth(); j++)
+                {
+                    if (campaign[current].getCell(j, y).isBlocked()) break;
+                    else if (j == characters[0]->getCharX())
+                        if (campaign[current].getCell(j, x).getType() == 'e')
+                            if (campaign[current].getCell(j, x).getCharacter()->getType() == 'p')
+                            {
+                                campaign[current].setCell(x+1, y, characters[i]);
+                                campaign[current].setCell(x, y, 'n');
+                                characters[i]->move(x+1, y);
+                                break;
+                            }
+                }
             }
-            shield = gear;
-            break;
-        }
-        case 'r':
-        {
-            for (unsigned int i = 0; i < 9; i++)
+            else if (y > characters[0]->getCharY())
             {
-                stats[i] -= ring.getEnhancement()[i];	// removes stat bonus from currently equipped item
-                stats[i] += gear.getEnhancement()[i];	// adds new stat bonus
+                for (int j = y; j >= 0; j--)
+                {
+                    if (campaign[current].getCell(x, j).isBlocked()) break;
+                    else if (j == characters[0]->getCharY())
+                        if (campaign[current].getCell(x, j).getType() == 'e')
+                            if (campaign[current].getCell(x, j).getCharacter()->getType() == 'p')
+                            {
+                                campaign[current].setCell(x, y-1, characters[i]);
+                                campaign[current].setCell(x, y, 'n');
+                                characters[i]->move(x, y-1);
+                                break;
+                            }
+                }
             }
-            ring = gear;
-            break;
-        }
-        case 'w':
-        {
-            for (unsigned int i = 0; i < 9; i++)
+            else if (x > characters[0]->getCharX())
             {
-                stats[i] -= weapon.getEnhancement()[i];	// removes stat bonus from currently equipped item
-                stats[i] += gear.getEnhancement()[i];	// adds new stat bonus
+                for (int j = x; j >= 0; j--)
+                {
+                    if (campaign[current].getCell(j, y).isBlocked()) break;
+                    else if (j == characters[0]->getCharX())
+                        if (campaign[current].getCell(j, y).getType() == 'e')
+                            if (campaign[current].getCell(j, y).getCharacter()->getType() == 'p')
+                            {
+                                campaign[current].setCell(x-1, y, characters[i]);
+                                campaign[current].setCell(x, y, 'n');
+                                characters[i]->move(x-1, y);
+                                break;
+                            }
+                }
             }
-            weapon = gear;
-            break;
         }
-        default: cout << "INVALID ITEM" << endl;
     }
-    Notify("Character equipped item");
-} // end function equip
 
-string Character::getName() const { return name; }
-
-void Character::setType(char t)
-{
-    type = t;
-    if (t == 'p')
-        this->setStrategy(new HumanPlayerStrategy());
-    else if (t == 'e')
-        this->setStrategy(new AggressorStrategy());
-    else
-        this->setStrategy(new FriendlyStrategy());
+    return false;
 }
 
-void Character::setEnchantments(int e)
+// SAVE MAP TO FILE
+void Campaign::saveMap() const
 {
-    armor.setEnchantment(e);
-    helmet.setEnchantment(e);
-    boots.setEnchantment(e);
-    shield.setEnchantment(e);
-    weapon.setEnchantment(e);
-    ring.setEnchantment(e);
+    // Formats file name, and opens map file (creates if new)
+    string target;
+    target = campaign[current].getName() +".txt";
+    ofstream active;
+    active.open("Save_Data/" + target);
+
+    // Writes map name
+    active << campaign[current].getName() << '\n';
+
+    // Writes dimensions
+    active << campaign[current].getLength() << ' ';
+    active << campaign[current].getWidth() << '\n';
+
+    // Runs through each cell and writes contents
+    for (unsigned int i = 0; i < campaign[current].getLength(); i++)
+        for (unsigned int j = 0; j < campaign[current].getWidth(); j++)
+        {
+            active << campaign[current].getCell(j, i).getType();
+            switch (campaign[current].getCell(j, i).getType())
+            {
+                case 'n':
+                    active << '\n';
+                    break;
+                case 'd':
+                    active << ' ' << campaign[current].getCell(j, i).getDoor()->getLink();
+                    active << ' ' << campaign[current].getCell(j, i).getDoor()->getX();
+                    active << ' ' << campaign[current].getCell(j, i).getDoor()->getY();
+                    active << '\n';
+                    break;
+                case 'c':
+                    active << ' ' << campaign[current].getCell(j, i).getContainer()->getSize();
+                    for (unsigned int k = 0; k < campaign[current].getCell(j, i).getContainer()->getSize(); k++) {
+                        active << '\n' << campaign[current].getCell(j, i).getContainer()->getItem(k).getType();
+                        active << ' ' << campaign[current].getCell(j, i).getContainer()->getItem(k).getEnchantment();
+                    }
+                    active << '\n';
+                    break;
+                case 'e':
+                    active << ' ' << campaign[current].getCell(j, i).getCharacter()->getLevel();
+                    active << ' ' << campaign[current].getCell(j, i).getCharacter()->getClass();
+                    active << ' ' << campaign[current].getCell(j, i).getCharacter()->getName();
+                    active << ' ' << campaign[current].getCell(j, i).getCharacter()->getItem('w').getEnchantment();
+                    for (unsigned int k = 0; k < 9; k++)
+                        active << ' ' << campaign[current].getCell(j, i).getCharacter()->getStat(k);
+                    active << '\n';
+                    break;
+                case 'w':
+                    active << '\n';
+                    break;
+                default:
+                    break;
+            }
+        }
+    // Confirmation message
+    cout << "Map saved to " << target << endl;
+    active.close();
 }
 
-void Character::setStrategy(Strategy * strat)
+void Campaign::saveCharacter(Character * local) const
 {
-    strategy = strat;
+    // Accesses character file
+    string target;
+    target = local->getName() +".txt";
+    ofstream active;
+    active.open("Save_Data/Characters/" + target);
+
+    // Writes character name
+    active << local->getName() << '\n';
+
+    // Writes character role/type
+    active << local->getRole() << '\n';
+    active << local->getType() << '\n';
+
+    // Writes character stats
+    active << local->getLevel() << '\n';
+    active << local->getHealth() << '\n';
+    active << local->getMax() << '\n';
+
+    for (unsigned int i = 0; i < 7; i++)
+    {
+        active << local->getStat(i) << ' ';
+    }
+    active << local->getStat(7) << '\n';
+
+    active << local->getStrAttackBonus() << '\n';
+    active << local->getDexAttackBonus() << '\n';
+
+    active << local->getAValue() << '\n';
+    active << local->getHValue() << '\n';
+    active << local->getBValue() << '\n';
+    active << local->getSValue() << '\n';
+    active << local->getWValue() << '\n';
+    active << local->getRValue() << '\n';
+
+    // Confirmation message
+    cout << "Character saved to " << target << endl;
+    active.close();
 }
 
-void Character::move(int x, int y)
+// ADDS EXISTING MAP
+void Campaign::addMap(Map & loaded)
 {
-    strategy->move(x, y, this);
+    campaign[pos] = loaded;
+    pos++;
 }
 
-void Character::attack(Character * them)
+string Campaign::getName() const { return name; }
+
+// ACCESS MAP
+Map Campaign::getMap(int x) const
 {
-    strategy->attack(this, them);
+    return campaign[x];
 }
+
+// ACCESS LAST MAP
+int Campaign::getPos() const
+{
+    return pos;
+}
+
+// LIST MAPS
+void Campaign::print() const
+{
+    unsigned int i = 0;
+    for (; i < pos; i++)
+        cout << i+1 << ". " << campaign[i].getName() << endl;
+    cout << i+1 << ". New Map" << endl;
+}
+
+void Campaign::addCharacter(Character* c)
+{
+    if (numChars < 64)
+    {
+        characters[numChars] = c;
+        numChars++;
+    }
+    else cerr << "Could not add character, map full" << endl;
+}
+
+

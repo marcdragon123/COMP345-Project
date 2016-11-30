@@ -3,6 +3,7 @@
 Menu::Menu() {
     game = new Edit();
     gameMode = 0;
+    pl = new Play();
 }
 
 Menu::~Menu() {};
@@ -91,7 +92,6 @@ void Menu::character() {
         else if (role == 2) line = "Nimble";
         else line = "Tank";
         cE->createCharacter(line, filename);
-        cE->loadCharacter("Save_Data/Characters/" + filename);
         cE->editCharacter();
         directory.close();
         ofstream directory;
@@ -101,9 +101,11 @@ void Menu::character() {
     }
     else if (active < index)
     {
-        for (unsigned int i = 0; i < index; i++)
+        for (unsigned int i = 0; i < active; i++)
             directory >> filename;
-        cE->loadCharacter("Save_Data/Characters/" + filename + ".txt");
+        cout << filename << endl;
+        cE->loadCharacter(filename +".txt");
+
         cE->editCharacter();
         directory.close();
     }//*/
@@ -122,9 +124,6 @@ void Menu::play() {
         directory.open("Save_Data/Characters/Characters.txt");
         while (directory >> ls)
         {
-            cout << ls << endl;
-            cout << pl->isNPC(ls) << endl;
-            cout << "UH OH" << endl;
             if (!(pl->isNPC(ls)))
             {
                 cout << index << ". " << ls << endl;
@@ -135,7 +134,8 @@ void Menu::play() {
         cin >> active;
         directory.clear();
         directory.seekg(0, ios::beg);
-
+        cout << pl << endl;
+        // Create new Character
         if (active == index)
         {
             cout << "Enter a name for this Character: ";
@@ -163,21 +163,30 @@ void Menu::play() {
         {
             for (unsigned int i = 0; i < index; i++)
                 directory >> filename;
-            pl->loadCharacter("Save_Data/" + filename + ".txt");
+            pl->loadCharacter(filename + ".txt");
             directory.close();
+
             cout << "Which campaign would you like to play?" << endl;
             directory.open("Save_Data/Campaigns/Campaigns.txt");
+            index = 1;
             while (directory >> ls)
             {
                 cout << index << ". " << ls << endl;
                 index++;
             }
+            directory.clear();
+            directory.seekg(0, ios::beg);
+            cin >> active;
             if (active < index)
             {
-                for (unsigned int i = 0; i < index; i++)
+                for (unsigned int i = 0; i < active; i++)
                     directory >> filename;
-                pl->createCampaign(filename);
+                cout << "A";
+                cout << pl << endl;
+                //pl->createCampaign(filename);
+
                 pl->load("Save_Data/Campaigns/" + filename + ".txt");
+                cout << "B";
                 pl->playCampaign();
                 directory.close();
                 break;

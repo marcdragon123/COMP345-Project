@@ -1,85 +1,299 @@
-///////////////////////////////////////////////////////////
-/// GAME RULES: This is the module that will allow users///
-/// to interact with the game, whether it be by playing ///
-/// or editing (Note that only the editor is currently  ///
-/// implemented). When editing, a user should be able   ///
-/// to select a campaign from a file, or create a whole ///
-/// new campaign. The campaign should then be saved     ///
-/// when editing is complete.                           ///
-///////////////////////////////////////////////////////////
+#include "Game.h"
 
-///////////////////////////////////////////////////////////
-/// DESIGN: The Game class acts as a parent class to    ///
-/// the Edit and Play classes. Which class is           ///
-/// instantiated will be determined by the client.      ///
-/// Game contains a Campaign object, and allows the     ///
-/// user to save/load a campaign to/from a file. From   ///
-/// there, it simply provides the user with prompts and ///
-/// sends messages to other classes (director/campaign).///
-///////////////////////////////////////////////////////////
+// CONSTRUCTOR
+Game::Game() { campaign = new Campaign(); }
 
-///////////////////////////////////////////////////////////
-/// LIBRARIES USED:                                     ///
-/// IOSTREAM: used to allow the program to communicate  ///
-///           with the user, and demonstrate what is    ///
-///           being done.                               ///
-/// STRING:   used to simplify the naming procedure for ///
-///           maps and campaigns. Also helps with file  ///
-///           access.                                   ///
-/// FSTREAM:  used to allow the program to read and     ///
-///           save data.                                ///
-///////////////////////////////////////////////////////////
+// DESTRUCTOR
+Game::~Game() { delete campaign; }
 
-#ifndef GAME_H
-#define GAME_H
-
-#include "Campaign.h"
-#include "Director.h"
-
-class Game
+// ACCESS MAP
+Map Game::getMap(int x) const
 {
-protected:
-    Character * player;
-    Campaign * campaign;
+    return campaign->getMap(x);
+}
 
-public:
-    Game();
-    ~Game();
+Play::Play():Game() { player = new Character();}
 
-    void save();
-    void load(string);
-    void loadCharacter(string);
-
-    Map getMap(int) const;
-    bool isNPC(string);
-    void createCharacter(string, string);
-    void createCampaign(string);
-};
-
-class Edit: public Game
+// SAVE CURRENT CAMPAIGN
+void Game::save()
 {
-public:
-    Edit();
-    ~Edit();
+    string target;
+    target = campaign->getName() + ".txt";
 
-    void editCampaign();
-};
+    ofstream campfile;
+    campfile.open("Save_Data/" + target);
 
-class Play: public Game
+    for (unsigned int i = 0; i < campaign->getPos(); i++)
+    {
+        campfile << campaign->getMap(i).getName() << ".txt" << '\n';
+    }
+}
+
+// LOAD MAP TO CAMPAIGN
+void Game::load(string target)
 {
+    // Initialize builder pattern objects
+    Director * direct = new Director();
+    Builder * build = new EditBuilder();
 
-public:
-    Play();
-    void playCampaign();
+    // Load campaign file
+    ifstream active;
+    active.open(target);
+    string line;
 
-};
+    // Read through each line
+    // Loading map objects into campaign object
+    while (active >> line)
+    {
+        direct->setBuilder(build);
+        direct->constructMap(line, campaign);
+        campaign->addMap(*direct->getMap());
+    }
+}
 
-class CharacterEditor : public Game
+void Game::loadCharacter(string target)
 {
+    // Initialize builder pattern objects
+    Director * direct = new Director();
+    Builder * build = new CharacterBuilder();
+    direct->setBuilder(build);
+    direct->constructCharacter(target);
+    player = direct->getCharacter();
+    cout << "Character loaded" << endl;
+}
 
-public:
-    CharacterEditor();
-    void editCharacter();
-};//*/
+//CONSTRUCTOR / DESTRUCTOR
+Edit::Edit():Game() {}
+Edit::~Edit() { delete campaign; }
+CharacterEditor::CharacterEditor():Game() {}
 
-#endif /* GAME_H */
+// RESET CAMPAIGN
+void Game::createCampaign(string name)
+{
+    cout << "Z";
+    campaign = new Campaign(name);
+}
+
+void Game::createCharacter(string role, string name)
+{
+    player = new Character(1, role, name);
+}
+
+// EDIT CAMPAIGN
+void Edit::editCampaign()
+{
+    int active;
+    char end;
+    do
+    {
+        // List maps in campaign
+        campaign->print();
+        cout << "Which Map would you like to edit? " << endl;
+        cout << "----------------------------------------" << endl;
+
+        // Input target map
+        cin >> active;
+        active--;
+
+        // Create new map
+        if (active == campaign->getPos())
+            campaign->createMap();
+
+        // Modify existing 
+        if (active <= campaign->getPos())
+        {
+            campaign->accessMap(active);
+            campaign->editMap();
+        }
+        else cout << "Please enter a valid number" << endl;
+
+        cout << "Finish editing campaign(y/n): ";
+        cin >> end;
+        if ((end == 'y') || (end == 'Y')) break;
+
+    } while (1);
+
+    this->save();
+    cout << "Saved campaign to " << campaign->getName() << ".txt" << endl;
+}
+
+void CharacterEditor::editCharacter()
+{
+    int option;
+    string n;
+    char c;
+    int role;
+    int ind;
+    while  (cout << "What would you like to edit?" << endl
+                 << "1. Name" << endl << "2. Class" << endl
+                 << "3. Level" << endl << "4. Type" << endl
+                 << "5. Stats" << endl << "6. Finish" << endl)
+    {
+        cin >> option;
+        if (option > 0 && option < 6)
+        {
+            switch (option)
+            {
+                case 1:
+                    cout << "Current name is: " << player->getName() << endl;
+                    cout << "Please enter a new name: ";
+                    cin >> n;
+                    player->setName(n);
+                    break;
+                case 2:
+                    cout << "Current class is: " << player->getClass() << endl;
+                    while   (cout << "Choose a class: " << endl
+                                  << "1. Bully" << endl << "2. Nimble" << endl
+                                  << "3. Tank" << endl)
+                    {
+                        cin >> role;
+                        if (role > 0 && role < 4)
+                            break;
+                        else cerr << " Invalid input, try again." << endl;
+                    }
+                    player->setRole(player, role);
+                    break;
+                case 3:
+                    cout << "Current level is: " << endl;
+                    cout << "Please enter a new level: ";
+                    cin >> role;
+                    player->setLevel(role);
+                    break;
+                case 4:
+                    cout << "Current type is: " << player->getType() << endl;
+                    cout << "Choose a type" << endl;
+                    cout << "p. Player" << endl;
+                    cout << "e. Enemy" << endl;
+                    cout << "f. Friendly" << endl;
+                    cin >> c;
+                    cout << "A";
+                    player->setType(c);
+                    cout << "B" << endl;
+                    break;
+                case 5:
+                    while (1)
+                    {
+                        cout << "Which stat would you like to change?" << endl;
+                        cout << "1. Strength:     " << player->getStat(0) << endl;
+                        cout << "2. Dexterity:    " << player->getStat(1) << endl;
+                        cout << "3. Constitution: " << player->getStat(2) << endl;
+                        cout << "4. Intelligence: " << player->getStat(3) << endl;
+                        cout << "5. Wisdom:       " << player->getStat(4) << endl;
+                        cout << "6. Charisma:     " << player->getStat(5) << endl;
+                        cout << "7. Stop Editing " << endl;
+                        cin >> ind;
+                        if (ind == 7) break;
+                        else
+                        {
+                            if (ind == 1)
+                            {
+                                cout << "Enter the new value for Strength:";
+                                cin >> role;
+                                if (role < 31 && role > 0)
+                                    player->setStat(0, role);
+                                else cout << "Value out of range" << endl;
+                            }
+                            else if (ind == 2)
+                            {
+                                cout << "Enter the new value for Dexterity:";
+                                cin >> role;
+                                if (role < 31 && role > 0)
+                                    player->setStat(1, role);
+                                else cout << "Value out of range" << endl;
+                            }
+                            else if (ind == 3)
+                            {
+                                cout << "Enter the new value for Constitution:";
+                                cin >> role;
+                                if (role < 31 && role > 0)
+                                    player->setStat(2, role);
+                                else cout << "Value out of range" << endl;
+                            }
+                            else if (ind == 4)
+                            {
+                                cout << "Enter the new value for Intelligence:";
+                                cin >> role;
+                                if (role < 31 && role > 0)
+                                    player->setStat(3, role);
+                                else cout << "Value out of range" << endl;
+                            }
+                            else if (ind == 5)
+                            {
+                                cout << "Enter the new value for Wisdom:";
+                                cin >> role;
+                                if (role < 31 && role > 0)
+                                    player->setStat(4, role);
+                                else cout << "Value out of range" << endl;
+                            }
+                            else if (ind == 6)
+                            {
+                                cout << "Enter the new value for Charisma:";
+                                cin >> role;
+                                if (role < 31 && role > 0)
+                                    player->setStat(5, role);
+                                else cout << "Value out of range" << endl;
+                            }
+                        }
+                    }
+                    break;
+                default:
+                    break;
+            }
+        }
+        else
+        {
+            campaign->saveCharacter(player);
+            break;
+        }
+    }
+}
+
+void Play::playCampaign()
+{
+    unsigned int i = 0;
+    int x = 0;
+    int y = 0;
+    string next;
+    char end;
+
+    while (1)
+    {
+        campaign->accessMap(i);
+        if (campaign->playMap())
+        {
+            campaign->saveMap();
+            x = campaign->getCharacter(0)->getCharX();
+            y = campaign->getCharacter(0)->getCharY();
+            next = campaign->getMap(i).getCell(x, y).getDoor()->getLink();
+            for (unsigned int j = 0; j < campaign->getPos(); j++)
+                if (next == campaign->getMap(j).getName())
+                {
+                    campaign->accessMap(j);
+                    break;
+                }
+        }
+        else
+        {
+            cout << "Are you sure you want to quit? (y/n)";
+            cin >> end;
+            if ((end == 'Y') || (end == 'y'))
+            {
+                this->save();
+                cout << "Game saved successfully" << endl;
+                break;
+            }
+        }
+    }
+}
+
+bool Game::isNPC(string target)
+{
+    string type;
+    ifstream active;
+    active.open("Save_Data/Characters/" + target + ".txt");
+    for (unsigned int i = 0; i < 3 ; i++)
+        active >> type;
+    if (type != "p")
+        return true;
+    else return false;
+}
