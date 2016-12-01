@@ -43,13 +43,14 @@ public:
     Item();                 // Default Constructor
     Item(char, int);        // Constructor with Type and Enchantment
     Item(const Item&);      // Copy Constructor
+	inline bool operator==(const Item& item);
 
     // Attribute Accessors
     string getName() const;
     char getType() const;
     int getEnchantment() const;
     int * getEnhancement();
-
+	void printItem();
     void setName(string);   // Set specific name to item
     void setEnchantment(int e) {enchantment = e;}
 };

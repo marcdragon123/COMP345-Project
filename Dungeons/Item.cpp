@@ -94,6 +94,12 @@ Item::Item(char type, int e)
     enchantment = e;
 } // end of Parametrized Constructor
 
+inline bool Item::operator==(const Item& item) {
+		return this->enchantment == item.enchantment
+			&& this->getName() == item.getName() && this->getType() == item.getType();
+}
+
+
 Item::Item(const Item &item)
 {
     type = item.type;
@@ -113,3 +119,7 @@ int Item::getEnchantment() const { return enchantment;} // end of getEnchantment
 int* Item::getEnhancement() { return enhance;} // end of getEnhancement()
 
 void Item::setName(string n) { name = n;} // end of setname()
+
+void Item::printItem() {
+	cout  << " Name: " << name << " Enchantment: " << enchantment << " Type: " << type << endl;
+}
