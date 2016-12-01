@@ -4,7 +4,7 @@ Item::Item()
 {
     name = "Item";
     enchantment = 0;
-    for (unsigned int i = 0; i < 7; i++) {
+    for (unsigned int i = 0; i < 9; i++) {
         enhance[i] = 0;
     }
     type = 'I';
@@ -20,13 +20,13 @@ Item::Item(char type, int e)
         case 'h':
         {
             name = "Helmet";
-            int temp[9] = {0, 0, 0, e, e, 0, e};
-            for (unsigned int i = 0; i < 7; i++) {
+            int temp[9] = {0, 0, 0, e, e, 0, e, 0, 0};
+            for (unsigned int i = 0; i < 9; i++) {
                 enhance[i] = temp[i];
             }
             break;
         }
-        // Armor
+            // Armor
         case 'a':
         {
             name = "Armor";
@@ -36,7 +36,7 @@ Item::Item(char type, int e)
             }
             break;
         }
-        // Shield
+            // Shield
         case 's':
         {
             name = "Shield";
@@ -46,7 +46,7 @@ Item::Item(char type, int e)
             }
             break;
         }
-        // Ring
+            // Ring
         case 'r':
         {
             name = "Ring";
@@ -56,7 +56,7 @@ Item::Item(char type, int e)
             }
             break;
         }
-        // Belt
+            // Belt
         case 'c':
         {
             name = "Belt";
@@ -66,7 +66,7 @@ Item::Item(char type, int e)
             }
             break;
         }
-        // Boots
+            // Boots
         case 'b':
         {
             name = "Boots";
@@ -76,7 +76,7 @@ Item::Item(char type, int e)
             }
             break;
         }
-        // Weapon
+            // Weapon
         case 'w':
         {
             name = "Weapon";
@@ -121,5 +121,37 @@ int* Item::getEnhancement() { return enhance;} // end of getEnhancement()
 void Item::setName(string n) { name = n;} // end of setname()
 
 void Item::printItem() {
-	cout  << " Name: " << name << " Enchantment: " << enchantment << " Type: " << type << endl;
+    
+    string enhancementsType = "";
+    for (unsigned int i = 0; i < 7; i++)
+    {
+        if(enhance[i] == this->getEnchantment())
+        {
+            switch(i)
+            {
+                case 0:
+                    enhancementsType.append(" STR,");
+                    break;
+                case 1:
+                    enhancementsType.append(" DEX,");
+                    break;
+                case 2:
+                    enhancementsType.append(" CON,");
+                    break;
+                case 3:
+                    enhancementsType.append(" INT,");
+                    break;
+                case 4:
+                    enhancementsType.append(" WIS,");
+                    break;
+                case 5:
+                    enhancementsType.append(" CHA,");
+                    break;
+                case 6:
+                    enhancementsType.append(" AC,");
+                    break;   
+            }
+        }
+    }
+    cout  << " Name: " << name << " Enchantment: " << enchantment << " Type: " << type << " Skills: " << enhancementsType <<endl;
 }

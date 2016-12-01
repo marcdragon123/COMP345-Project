@@ -22,7 +22,7 @@ void ConcreteObserver::Update(string pState, State pEn) {
             this ->getLogger()->close();
             break;
         case All:
-            if(pState.find("battle")!=string::npos)
+            if(pState.find("attack")!=string::npos)
             {
                 this->openBattle();
                 strings = this->getLogger()->ReadAll(pState);

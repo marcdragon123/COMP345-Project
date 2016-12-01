@@ -76,6 +76,11 @@ void FriendlyStrategy::attack(Character *me, Character *them)
 
 void HumanPlayerStrategy::open(Container *it, Character *me)
 {
+    for(unsigned int visibleItem =0; visibleItem < it->getSize(); visibleItem++)
+    {
+        Item thething = it->getItem(visibleItem);
+        cout << visibleItem +1 << ". " << thething.printItem(); 
+    }
     
 }
 void AggressorStrategy::open(Container *it, Character *me)
