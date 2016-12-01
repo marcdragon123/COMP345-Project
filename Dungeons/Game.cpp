@@ -21,7 +21,7 @@ void Game::save()
     target = campaign->getName() + ".txt";
 
     ofstream campfile;
-    campfile.open("Save_Data/" + target);
+    campfile.open("Save_Data/Campaigns/" + target);
 
     for (unsigned int i = 0; i < campaign->getPos(); i++)
     {
@@ -70,7 +70,6 @@ CharacterEditor::CharacterEditor():Game() {}
 // RESET CAMPAIGN
 void Game::createCampaign(string name)
 {
-    cout << "Z";
     campaign = new Campaign(name);
 }
 
@@ -99,7 +98,7 @@ void Edit::editCampaign()
         if (active == campaign->getPos())
             campaign->createMap();
 
-        // Modify existing 
+        // Modify existing
         if (active <= campaign->getPos())
         {
             campaign->accessMap(active);
@@ -250,6 +249,8 @@ void CharacterEditor::editCharacter()
 
 void Play::playCampaign()
 {
+    campaign->addCharacter(player);
+
     unsigned int i = 0;
     int x = 0;
     int y = 0;
@@ -259,31 +260,18 @@ void Play::playCampaign()
     while (1)
     {
         campaign->accessMap(i);
-        if (campaign->playMap())
+        i = campaign->playMap();
+        campaign->saveMap();
+
+        if (i == -1)
         {
-            campaign->saveMap();
-            x = campaign->getCharacter(0)->getCharX();
-            y = campaign->getCharacter(0)->getCharY();
-            next = campaign->getMap(i).getCell(x, y).getDoor()->getLink();
-            for (unsigned int j = 0; j < campaign->getPos(); j++)
-                if (next == campaign->getMap(j).getName())
-                {
-                    campaign->accessMap(j);
-                    break;
-                }
-        }
-        else
-        {
-            cout << "Are you sure you want to quit? (y/n)";
+            cout << "Are you sure you want to quit? (y/n)" << endl;
             cin >> end;
-            if ((end == 'Y') || (end == 'y'))
-            {
-                this->save();
-                cout << "Game saved successfully" << endl;
-                break;
-            }
+            if ((end == 'Y') || (end == 'y')) break;
         }
+
     }
+    this->save();
 }
 
 bool Game::isNPC(string target)

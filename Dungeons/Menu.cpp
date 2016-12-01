@@ -46,7 +46,7 @@ void Menu::edit() {
         for (unsigned int i = 0; i < index; i++)
             directory >> filename;
         game->createCampaign(filename);
-        game->load("Save_Data/" + filename + ".txt");
+        game->load("Save_Data/Campaigns/" + filename + ".txt");
         game->editCampaign();
         directory.close();
     }
@@ -134,7 +134,7 @@ void Menu::play() {
         cin >> active;
         directory.clear();
         directory.seekg(0, ios::beg);
-        cout << pl << endl;
+        //cout << pl << endl;
         // Create new Character
         if (active == index)
         {
@@ -181,12 +181,12 @@ void Menu::play() {
             {
                 for (unsigned int i = 0; i < active; i++)
                     directory >> filename;
-                cout << "A";
-                cout << pl << endl;
+                //cout << "A";
+                //cout << pl << endl;
                 //pl->createCampaign(filename);
 
                 pl->load("Save_Data/Campaigns/" + filename + ".txt");
-                cout << "B";
+                //cout << "B";
                 pl->playCampaign();
                 directory.close();
                 break;

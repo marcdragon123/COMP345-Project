@@ -12,12 +12,10 @@ Campaign::Campaign()
 
 Campaign::Campaign(string in)
 {
-    cout << "J";
-    characters = new Character*[64];
-    numChars = 0;
-    cout << "K";
-    campaign = new Map[64];
-    name = in;
+characters = new Character*[64];
+numChars = 0;
+campaign = new Map[64];
+name = in;
 }
 
 // DESTRUCTOR
@@ -29,16 +27,16 @@ Campaign::~Campaign()
 
 bool Campaign::isNPC(string target)
 {
-    cout << "B" << endl;
-    string type;
-    ifstream active;
-    active.open("Save_Data/Characters/" + target);
-    for (unsigned int i = 0; i < 3 ; i++)
-        active >> type;
-    cout << "Type: " << type << endl;
-    if (type != "p")
-        return true;
-    else return false;
+cout << "B" << endl;
+string type;
+ifstream active;
+active.open("Save_Data/Characters/" + target);
+for (unsigned int i = 0; i < 3 ; i++)
+active >> type;
+cout << "Type: " << type << endl;
+if (type != "p")
+return true;
+else return false;
 }
 
 // SETS ACTIVE MAP
@@ -72,6 +70,8 @@ void Campaign::createMap()
         cin >> x;
         cin >> y;
         campaign[pos].setCell(x-1, y-1, "CAMPAIGN_START", 0, 0);
+        campaign[pos].setStartX(x-1);
+        campaign[pos].setStartY(y-1);
     }
     pos++;
 }
@@ -222,46 +222,45 @@ void Campaign::editMap()
     saveMap();
 }
 
-bool Campaign::playMap()
+int Campaign::playMap()
 {
     int target;
-    int turn = 2;
     int x, y;
     char move;
 
-
-    for (unsigned int i = 0; i < turn+1; i++)
+    for (unsigned int i = 0; i < numChars+1; i++)
     {
-        i = i%turn;
+        i = i%numChars;
         x = characters[i]->getCharX();
         y = characters[i]->getCharY();
 
         // Player's Turn
         if (characters[i]->getType() == 'p')
         {
+            campaign[current].print();
             cout << "What would you like to do?" << endl;
             // Forward Actions
             if (y+1 < campaign[current].getLength())
             {
-                cout << "w. ";
+                cout << "  w. ";
                 if (campaign[current].getCell(x, y+1).getType() == 'e')
                     cout << "Attack forward" << endl;
                 else if (campaign[current].getCell(x, y+1).getType() == 'd')
-                    if (campaign[current].getCell(x, y+1).getDoor()->getVisited())
+                    if (!campaign[current].getCell(x, y+1).getDoor()->getVisited())
                         cout << "Advance to new map" << endl;
                     else cout << "Return to previous map" << endl;
                 else if (!(campaign[current].getCell(x, y+1).isBlocked()))
-                    cout << "Move forward" << endl;\
+                    cout << "Move forward" << endl;
                 else cout << "Blocked" << endl;
             }
             // Right Actions
             if (x+1 < campaign[current].getWidth())
             {
-                cout << "d. ";
+                cout << "  d. ";
                 if (campaign[current].getCell(x+1, y).getType() == 'e')
                     cout << "Attack right" << endl;
                 else if (campaign[current].getCell(x+1, y).getType() == 'd')
-                    if (campaign[current].getCell(x+1, y).getDoor()->getVisited())
+                    if (!campaign[current].getCell(x+1, y).getDoor()->getVisited())
                         cout << "Advance to new map" << endl;
                     else cout << "Return to previous map" << endl;
                 else if (!(campaign[current].getCell(x+1, y).isBlocked()))
@@ -271,11 +270,11 @@ bool Campaign::playMap()
             // Backwards Actions
             if (y-1 >= 0)
             {
-                cout << "s. ";
+                cout << "  s. ";
                 if (campaign[current].getCell(x, y-1).getType() == 'e')
                     cout << "Attack behind" << endl;
                 else if (campaign[current].getCell(x, y-1).getType() == 'd')
-                    if (campaign[current].getCell(x, y-1).getDoor()->getVisited())
+                    if (!campaign[current].getCell(x, y-1).getDoor()->getVisited())
                         cout << "Advance to new map" << endl;
                     else cout << "Return to previous map" << endl;
                 else if (!(campaign[current].getCell(x, y-1).isBlocked()))
@@ -285,11 +284,11 @@ bool Campaign::playMap()
             // Left Actions
             if (x-1 >= 0)
             {
-                cout << "a. ";
+                cout << "  a. ";
                 if (campaign[current].getCell(x-1, y).getType() == 'e')
                     cout << "Attack left" << endl;
                 else if (campaign[current].getCell(x-1, y).getType() == 'd')
-                    if (campaign[current].getCell(x-1, y).getDoor()->getVisited())
+                    if (!campaign[current].getCell(x-1, y).getDoor()->getVisited())
                         cout << "Advance to new map" << endl;
                     else cout << "Return to previous map" << endl;
                 else if (!(campaign[current].getCell(x-1, y).isBlocked()))
@@ -321,9 +320,10 @@ bool Campaign::playMap()
             {
                 case 'w':
                     if (y+1 < campaign[current].getLength())
+                    {
                         if (campaign[current].getCell(x, y+1).getType() == 'e')
                         {
-                            for (unsigned int k = 1; i < turn; k++)
+                            for (unsigned int k = 1; i < numChars; k++)
                                 if (characters[k]->getName() == campaign[current].getCell(x, y+1).getCharacter()->getName())
                                 {
                                     target = k;
@@ -333,32 +333,57 @@ bool Campaign::playMap()
                         }
                         else if (campaign[current].getCell(x, y+1).getType() == 'd')
                         {
+                            string link = campaign[current].getCell(x, y+1).getDoor()->getLink();
+                            int x2 = campaign[current].getCell(x, y+1).getDoor()->getX();
+                            int y2 = campaign[current].getCell(x, y+1).getDoor()->getY();
+                            unsigned int nm = 0;
+                            for (nm = 0; nm < pos; nm++)
+                            {
+                                if (campaign[nm].getName() == link)
+                                {
+                                    campaign[nm].setStartX(x2);
+                                    campaign[nm].setStartY(y2);
+                                }
+                            }
                             if (!(campaign[current].getCell(x, y+1).getDoor()->getVisited()))
                             {
                                 campaign[current].getCell(x, y+1).getDoor()->setVisited();
+
                                 cout << "Congratulations of completing the map!" << endl;
-                                return true;
+                                characters[i]->levelUp();
+                                cout << "You have advanced to level " << characters[i]->getLevel() << "!" << endl;
+                                return nm-1;
                             }
                             else
                             {
                                 cout << "Returning to previous map..." << endl;
-                                return true;
+                                return nm-1;
                             }
                         }
                         else if (!(campaign[current].getCell(x, y+1).isBlocked()))
                         {
                             campaign[current].setCell(x, y+1, characters[i]);
-                            campaign[current].setCell(x, y, 'n');
+                            if (campaign[current].getCell(x,y).getDoor())
+                            {
+                                int x2 = campaign[current].getCell(x,y).getDoor()->getX();
+                                int y2 = campaign[current].getCell(x,y).getDoor()->getY();
+                                string link = campaign[current].getCell(x,y).getDoor()->getLink();
+                                campaign[current].setCell(x,y,link, x2, y2);
+                                campaign[current].getCell(x,y).getDoor()->setVisited();
+                            }
+                            else campaign[current].setCell(x, y, 'n');
                             characters[i]->move(x, y+1);
                         }
                         else cout << "Passed Turn" << endl;
+                    }
                     break;
                 case 'd':
                     if (x+1 < campaign[current].getWidth())
+                    {
                         if (campaign[current].getCell(x+1, y).getType() == 'e')
                         {
                             cout << campaign[current].getCell(x+1, y).getCharacter()->getName() << endl;
-                            for (unsigned int k = 1; i < turn; k++)
+                            for (unsigned int k = 1; i < numChars; k++)
                             {
                                 if (characters[k]->getName() == campaign[current].getCell(x+1, y).getCharacter()->getName())
                                 {
@@ -370,31 +395,55 @@ bool Campaign::playMap()
                         }
                         else if (campaign[current].getCell(x+1, y).getType() == 'd')
                         {
+                            string link = campaign[current].getCell(x+1, y).getDoor()->getLink();
+                            int x2 = campaign[current].getCell(x+1, y).getDoor()->getX();
+                            int y2 = campaign[current].getCell(x+1, y).getDoor()->getY();
+                            unsigned int nm = 0;
+                            for (nm = 0; nm < pos; nm++)
+                            {
+                                if (campaign[nm].getName() == link)
+                                {
+                                    campaign[nm].setStartX(x2);
+                                    campaign[nm].setStartY(y2);
+                                }
+                            }
                             if (!(campaign[current].getCell(x+1, y).getDoor()->getVisited()))
                             {
                                 campaign[current].getCell(x+1, y).getDoor()->setVisited();
                                 cout << "Congratulations of completing the map!" << endl;
-                                return true;
+                                characters[i]->levelUp();
+                                cout << "You have advanced to level " << characters[i]->getLevel() << "!" << endl;
+                                return nm-1;
                             }
                             else
                             {
                                 cout << "Returning to previous map..." << endl;
-                                return true;
+                                return nm-1;
                             }
                         }
                         else if (!(campaign[current].getCell(x+1, y).isBlocked()))
                         {
                             campaign[current].setCell(x+1, y, characters[i]);
-                            campaign[current].setCell(x, y, 'n');
+                            if (campaign[current].getCell(x,y).getDoor())
+                            {
+                                int x2 = campaign[current].getCell(x,y).getDoor()->getX();
+                                int y2 = campaign[current].getCell(x,y).getDoor()->getY();
+                                string link = campaign[current].getCell(x,y).getDoor()->getLink();
+                                campaign[current].setCell(x,y,link, x2, y2);
+                                campaign[current].getCell(x,y).getDoor()->setVisited();
+                            }
+                            else campaign[current].setCell(x, y, 'n');
                             characters[i]->move(x+1, y);
                         }
                         else cout << "Passed Turn" << endl;
+                    }
                     break;
                 case 's':
                     if (y-1 >= 0)
+                    {
                         if (campaign[current].getCell(x, y-1).getType() == 'e')
                         {
-                            for (unsigned int k = 1; i < turn; k++)
+                            for (unsigned int k = 1; i < numChars; k++)
                                 if (characters[k]->getName() == campaign[current].getCell(x, y-1).getCharacter()->getName())
                                 {
                                     target = k;
@@ -404,31 +453,55 @@ bool Campaign::playMap()
                         }
                         else if (campaign[current].getCell(x, y-1).getType() == 'd')
                         {
+                            string link = campaign[current].getCell(x, y-1).getDoor()->getLink();
+                            int x2 = campaign[current].getCell(x, y-1).getDoor()->getX();
+                            int y2 = campaign[current].getCell(x, y-1).getDoor()->getY();
+                            unsigned int nm = 0;
+                            for (nm = 0; nm < pos; nm++)
+                            {
+                                if (campaign[nm].getName() == link)
+                                {
+                                    campaign[nm].setStartX(x2);
+                                    campaign[nm].setStartY(y2);
+                                }
+                            }
                             if (!(campaign[current].getCell(x, y-1).getDoor()->getVisited()))
                             {
                                 campaign[current].getCell(x, y-1).getDoor()->setVisited();
                                 cout << "Congratulations of completing the map!" << endl;
-                                return true;
+                                characters[i]->levelUp();
+                                cout << "You have advanced to level " << characters[i]->getLevel() << "!" << endl;
+                                return nm-1;
                             }
                             else
                             {
                                 cout << "Returning to previous map..." << endl;
-                                return true;
+                                return nm-1;
                             }
                         }
                         else if (!(campaign[current].getCell(x, y-1).isBlocked()))
                         {
                             campaign[current].setCell(x, y-1, characters[i]);
-                            campaign[current].setCell(x, y, 'n');
+                            if (campaign[current].getCell(x,y).getDoor())
+                            {
+                                int x2 = campaign[current].getCell(x,y).getDoor()->getX();
+                                int y2 = campaign[current].getCell(x,y).getDoor()->getY();
+                                string link = campaign[current].getCell(x,y).getDoor()->getLink();
+                                campaign[current].setCell(x,y,link, x2, y2);
+                                campaign[current].getCell(x,y).getDoor()->setVisited();
+                            }
+                            else campaign[current].setCell(x, y, 'n');
                             characters[i]->move(x, y-1);
                         }
                         else cout << "Passed Turn" << endl;
+                    }
                     break;
                 case 'a':
                     if (x-1 >= 0)
+                    {
                         if (campaign[current].getCell(x-1, y).getType() == 'e')
                         {
-                            for (unsigned int k = 1; i < turn; k++)
+                            for (unsigned int k = 1; i < numChars; k++)
                                 if (characters[k]->getName() == campaign[current].getCell(x-1, y).getCharacter()->getName())
                                 {
                                     target = k;
@@ -438,45 +511,67 @@ bool Campaign::playMap()
                         }
                         else if (campaign[current].getCell(x-1, y).getType() == 'd')
                         {
+                            string link = campaign[current].getCell(x-1, y).getDoor()->getLink();
+                            int x2 = campaign[current].getCell(x-1, y).getDoor()->getX();
+                            int y2 = campaign[current].getCell(x-1, y).getDoor()->getY();
+                            unsigned int nm = 0;
+                            for (nm = 0; nm < pos; nm++)
+                            {
+                                if (campaign[nm].getName() == link)
+                                {
+                                    campaign[nm].setStartX(x2);
+                                    campaign[nm].setStartY(y2);
+                                }
+                            }
                             if (!(campaign[current].getCell(x-1, y).getDoor()->getVisited()))
                             {
                                 campaign[current].getCell(x-1, y).getDoor()->setVisited();
                                 cout << "Congratulations of completing the map!" << endl;
-                                return true;
+                                characters[i]->levelUp();
+                                cout << "You have advanced to level " << characters[i]->getLevel() << "!" << endl;
+                                return nm-1;
                             }
                             else
                             {
                                 cout << "Returning to previous map..." << endl;
-                                return true;
+                                return nm-1;
                             }
                         }
                         else if (!(campaign[current].getCell(x-1, y).isBlocked()))
                         {
                             campaign[current].setCell(x-1, y, characters[i]);
-                            campaign[current].setCell(x, y, 'n');
+                            if (campaign[current].getCell(x,y).getDoor())
+                            {
+                                int x2 = campaign[current].getCell(x,y).getDoor()->getX();
+                                int y2 = campaign[current].getCell(x,y).getDoor()->getY();
+                                string link = campaign[current].getCell(x,y).getDoor()->getLink();
+                                campaign[current].setCell(x,y,link, x2, y2);
+                                campaign[current].getCell(x,y).getDoor()->setVisited();
+                            }
+                            else campaign[current].setCell(x, y, 'n');
                             characters[i]->move(x-1, y);
                         }
                         else cout << "Passed Turn" << endl;
+                    }
                     break;
                 default:
                     break;
             }
-            campaign[current].print();
         }
 
             // Enemy's Turns
         else if (characters[i]->getType() == 'e')
         {
-            if (y < characters[0]->getCharY())
+            if (y < characters[numChars-1]->getCharY())
             {
                 for (unsigned int j = y; j < campaign[current].getLength(); j++)
                 {
                     if (campaign[current].getCell(x, j).isBlocked()) break;
-                    else if (j == characters[0]->getCharY())
+                    else if (j == characters[numChars-1]->getCharY())
                     {
                         if (campaign[current].getCell(x, y+1).getType() == 'e')
                         {
-                            for (unsigned int k = 1; i < turn; k++)
+                            for (unsigned int k = 1; i < numChars; k++)
                             {
                                 if (characters[k]->getName() == campaign[current].getCell(x, y+1).getCharacter()->getName())
                                 {
@@ -498,16 +593,16 @@ bool Campaign::playMap()
                     }
                 }
             }
-            else if (x < characters[0]->getCharX())
+            else if (x < characters[numChars-1]->getCharX())
             {
                 for (unsigned int j = x; j < campaign[current].getWidth(); j++)
                 {
                     if (campaign[current].getCell(j, y).isBlocked()) break;
-                    else if (j == characters[0]->getCharX())
+                    else if (j == characters[numChars-1]->getCharX())
                     {
                         if (campaign[current].getCell(x+1, y).getType() == 'e')
                         {
-                            for (unsigned int k = 1; i < turn; k++)
+                            for (unsigned int k = 1; i < numChars; k++)
                             {
                                 if (characters[k]->getName() == campaign[current].getCell(x+1, y).getCharacter()->getName())
                                 {
@@ -529,16 +624,16 @@ bool Campaign::playMap()
                     }
                 }
             }
-            else if (y > characters[0]->getCharY())
+            else if (y > characters[numChars-1]->getCharY())
             {
                 for (int j = y; j >= 0; j--)
                 {
                     if (campaign[current].getCell(x, j).isBlocked()) break;
-                    else if (j == characters[0]->getCharY())
+                    else if (j == characters[numChars-1]->getCharY())
                     {
                         if (campaign[current].getCell(x, y-1).getType() == 'e')
                         {
-                            for (unsigned int k = 1; i < turn; k++)
+                            for (unsigned int k = 1; i < numChars; k++)
                             {
                                 if (characters[k]->getName() == campaign[current].getCell(x, y-1).getCharacter()->getName())
                                 {
@@ -560,16 +655,16 @@ bool Campaign::playMap()
                     }
                 }
             }
-            else if (x > characters[0]->getCharX())
+            else if (x > characters[numChars-1]->getCharX())
             {
                 for (int j = x; j >= 0; j--)
                 {
                     if (campaign[current].getCell(j, y).isBlocked()) break;
-                    else if (j == characters[0]->getCharX())
+                    else if (j == characters[numChars-1]->getCharX())
                     {
                         if (campaign[current].getCell(x-1, y).getType() == 'e')
                         {
-                            for (unsigned int k = 1; i < turn; k++)
+                            for (unsigned int k = 1; i < numChars; k++)
                             {
                                 if (characters[k]->getName() == campaign[current].getCell(x-1, y).getCharacter()->getName())
                                 {
@@ -596,12 +691,12 @@ bool Campaign::playMap()
             //Ally's Turns
         else
         {
-            if (y < characters[0]->getCharY())
+            if (y < characters[numChars-1]->getCharY())
             {
                 for (int j = y; j < campaign[current].getLength(); j++)
                 {
                     if (campaign[current].getCell(x, j).isBlocked()) break;
-                    else if (j == characters[0]->getCharY())
+                    else if (j == characters[numChars-1]->getCharY())
                         if (campaign[current].getCell(x, j).getType() == 'e')
                             if (campaign[current].getCell(x, j).getCharacter()->getType() == 'p')
                             {
@@ -612,12 +707,12 @@ bool Campaign::playMap()
                             }
                 }
             }
-            else if (x < characters[0]->getCharX())
+            else if (x < characters[numChars-1]->getCharX())
             {
                 for (int j = x; j < campaign[current].getWidth(); j++)
                 {
                     if (campaign[current].getCell(j, y).isBlocked()) break;
-                    else if (j == characters[0]->getCharX())
+                    else if (j == characters[numChars-1]->getCharX())
                         if (campaign[current].getCell(j, x).getType() == 'e')
                             if (campaign[current].getCell(j, x).getCharacter()->getType() == 'p')
                             {
@@ -628,12 +723,12 @@ bool Campaign::playMap()
                             }
                 }
             }
-            else if (y > characters[0]->getCharY())
+            else if (y > characters[numChars-1]->getCharY())
             {
                 for (int j = y; j >= 0; j--)
                 {
                     if (campaign[current].getCell(x, j).isBlocked()) break;
-                    else if (j == characters[0]->getCharY())
+                    else if (j == characters[numChars-1]->getCharY())
                         if (campaign[current].getCell(x, j).getType() == 'e')
                             if (campaign[current].getCell(x, j).getCharacter()->getType() == 'p')
                             {
@@ -644,12 +739,12 @@ bool Campaign::playMap()
                             }
                 }
             }
-            else if (x > characters[0]->getCharX())
+            else if (x > characters[numChars-1]->getCharX())
             {
                 for (int j = x; j >= 0; j--)
                 {
                     if (campaign[current].getCell(j, y).isBlocked()) break;
-                    else if (j == characters[0]->getCharX())
+                    else if (j == characters[numChars-1]->getCharX())
                         if (campaign[current].getCell(j, y).getType() == 'e')
                             if (campaign[current].getCell(j, y).getCharacter()->getType() == 'p')
                             {
@@ -663,7 +758,7 @@ bool Campaign::playMap()
         }
     }
 
-    return false;
+    return -1;
 }
 
 // SAVE MAP TO FILE
@@ -673,7 +768,7 @@ void Campaign::saveMap() const
     string target;
     target = campaign[current].getName() +".txt";
     ofstream active;
-    active.open("Save_Data/" + target);
+    active.open("Save_Data/Campaigns/" + target);
 
     // Writes map name
     active << campaign[current].getName() << '\n';
