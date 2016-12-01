@@ -146,16 +146,10 @@ Door * Cell::getDoor() const
 
 Container * Cell::getContainer() const
 {
-    if (type.getObj() == 'c')
-        return type.getContainer();
-    else
-        return NULL;
+    return type.getContainer();
 }
 
 Character * Cell::getCharacter() const
 {
-    if (type.getObj() == 'e')
-        return type.getCharacter();
-    else
-        return NULL;
+    return type.getCharacter();
 }

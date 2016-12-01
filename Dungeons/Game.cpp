@@ -40,7 +40,7 @@ void Game::load(string target)
     ifstream active;
     active.open(target);
     string line;
-
+    
     // Read through each line
     // Loading map objects into campaign object
     while (active >> line)
@@ -89,16 +89,16 @@ void Edit::editCampaign()
         campaign->print();
         cout << "Which Map would you like to edit? " << endl;
         cout << "----------------------------------------" << endl;
-
+        
         // Input target map
         cin >> active;
         active--;
-
+        
         // Create new map
         if (active == campaign->getPos())
             campaign->createMap();
-
-        // Modify existing
+        
+        // Modify existing 
         if (active <= campaign->getPos())
         {
             campaign->accessMap(active);
@@ -124,11 +124,11 @@ void CharacterEditor::editCharacter()
     int role;
     int ind;
     while  (cout << "What would you like to edit?" << endl
-                 << "1. Name" << endl << "2. Class" << endl
-                 << "3. Level" << endl << "4. Type" << endl
-                 << "5. Stats" << endl << "6. Finish" << endl)
+            << "1. Name" << endl << "2. Class" << endl
+            << "3. Level" << endl << "4. Type" << endl
+            << "5. Stats" << endl << "6. Finish" << endl)
     {
-        cin >> option;
+        cin >> option;   
         if (option > 0 && option < 6)
         {
             switch (option)
@@ -141,14 +141,14 @@ void CharacterEditor::editCharacter()
                     break;
                 case 2:
                     cout << "Current class is: " << player->getClass() << endl;
-                    while   (cout << "Choose a class: " << endl
-                                  << "1. Bully" << endl << "2. Nimble" << endl
-                                  << "3. Tank" << endl)
+                    while   (cout << "Choose a class: " << endl 
+                            << "1. Bully" << endl << "2. Nimble" << endl 
+                            << "3. Tank" << endl)
                     {
-                        cin >> role;
-                        if (role > 0 && role < 4)
-                            break;
-                        else cerr << " Invalid input, try again." << endl;
+                    cin >> role;
+                    if (role > 0 && role < 4)
+                        break;
+                    else cerr << " Invalid input, try again." << endl;
                     }
                     player->setRole(player, role);
                     break;
@@ -165,9 +165,7 @@ void CharacterEditor::editCharacter()
                     cout << "e. Enemy" << endl;
                     cout << "f. Friendly" << endl;
                     cin >> c;
-                    cout << "A";
                     player->setType(c);
-                    cout << "B" << endl;
                     break;
                 case 5:
                     while (1)
@@ -186,51 +184,51 @@ void CharacterEditor::editCharacter()
                         {
                             if (ind == 1)
                             {
-                                cout << "Enter the new value for Strength:";
-                                cin >> role;
-                                if (role < 31 && role > 0)
-                                    player->setStat(0, role);
-                                else cout << "Value out of range" << endl;
+                                    cout << "Enter the new value for Strength:";
+                                    cin >> role;
+                                    if (role < 31 && role > 0)
+                                        player->setStat(0, role);
+                                    else cout << "Value out of range" << endl;
                             }
                             else if (ind == 2)
                             {
-                                cout << "Enter the new value for Dexterity:";
-                                cin >> role;
-                                if (role < 31 && role > 0)
-                                    player->setStat(1, role);
-                                else cout << "Value out of range" << endl;
+                                    cout << "Enter the new value for Dexterity:";
+                                    cin >> role;
+                                    if (role < 31 && role > 0)
+                                        player->setStat(1, role);
+                                    else cout << "Value out of range" << endl;
                             }
                             else if (ind == 3)
                             {
-                                cout << "Enter the new value for Constitution:";
-                                cin >> role;
-                                if (role < 31 && role > 0)
-                                    player->setStat(2, role);
-                                else cout << "Value out of range" << endl;
+                                    cout << "Enter the new value for Constitution:";
+                                    cin >> role;
+                                    if (role < 31 && role > 0)
+                                        player->setStat(2, role);
+                                    else cout << "Value out of range" << endl;
                             }
                             else if (ind == 4)
                             {
-                                cout << "Enter the new value for Intelligence:";
-                                cin >> role;
-                                if (role < 31 && role > 0)
-                                    player->setStat(3, role);
-                                else cout << "Value out of range" << endl;
+                                    cout << "Enter the new value for Intelligence:";
+                                    cin >> role;
+                                    if (role < 31 && role > 0)
+                                        player->setStat(3, role);
+                                    else cout << "Value out of range" << endl;
                             }
                             else if (ind == 5)
                             {
-                                cout << "Enter the new value for Wisdom:";
-                                cin >> role;
-                                if (role < 31 && role > 0)
-                                    player->setStat(4, role);
-                                else cout << "Value out of range" << endl;
+                                    cout << "Enter the new value for Wisdom:";
+                                    cin >> role;
+                                    if (role < 31 && role > 0)
+                                        player->setStat(4, role);
+                                    else cout << "Value out of range" << endl;
                             }
                             else if (ind == 6)
                             {
-                                cout << "Enter the new value for Charisma:";
-                                cin >> role;
-                                if (role < 31 && role > 0)
-                                    player->setStat(5, role);
-                                else cout << "Value out of range" << endl;
+                                    cout << "Enter the new value for Charisma:";
+                                    cin >> role;
+                                    if (role < 31 && role > 0)
+                                        player->setStat(5, role);
+                                    else cout << "Value out of range" << endl;
                             }
                         }
                     }
@@ -239,7 +237,7 @@ void CharacterEditor::editCharacter()
                     break;
             }
         }
-        else
+        else 
         {
             campaign->saveCharacter(player);
             break;
@@ -249,27 +247,26 @@ void CharacterEditor::editCharacter()
 
 void Play::playCampaign()
 {
-    campaign->addCharacter(player);
-
+    
     unsigned int i = 0;
     int x = 0;
     int y = 0;
     string next;
     char end;
-
+   
     while (1)
     {
         campaign->accessMap(i);
-        i = campaign->playMap();
+        i = campaign->playMap(player);
         campaign->saveMap();
-
+        
         if (i == -1)
         {
             cout << "Are you sure you want to quit? (y/n)" << endl;
             cin >> end;
             if ((end == 'Y') || (end == 'y')) break;
         }
-
+       
     }
     this->save();
 }

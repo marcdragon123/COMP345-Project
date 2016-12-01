@@ -71,15 +71,15 @@ class Play: public Game
 public:
     Play();
     void playCampaign();
-
-
+    
+    
 };
 
 class CharacterEditor : public Game
 {
-
+    
 public:
-    CharacterEditor();
+    CharacterEditor(); 
     void editCharacter();
 };//*/
 

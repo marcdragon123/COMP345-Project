@@ -48,9 +48,9 @@ Item Container::getItem(string name)
         // Item is not found, empty item is returned
         throw ("Item '" + name + "' not in container\n");
     } catch (string error) {
-        cout << error;
-        return *new Item();
-    }
+    cout << error;
+    return *new Item();
+}
 } // end of getItem()
 
 int Container::getSize() const { return items; }

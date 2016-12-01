@@ -48,8 +48,6 @@ class Director;
 
 class Campaign
 {
-    Character ** characters;
-    int numChars;
     Map * campaign;
     int pos;
     int current;
@@ -66,18 +64,16 @@ public:
     void saveMap() const;
     void saveCharacter(Character *) const;
     void addMap(Map &);
-    void addCharacter(Character *);
 
     string getName() const;
     Map getMap(int) const;
     int getPos() const;
-    Character * getCharacter(int i) const {return characters[i]; }
     void print() const;
 
-    int playMap();
-
+    int playMap(Character *);
+    
     bool checkPath(int, int);
-
+    
     bool isNPC(string);
 
 };

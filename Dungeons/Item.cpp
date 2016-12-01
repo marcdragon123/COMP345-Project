@@ -4,7 +4,7 @@ Item::Item()
 {
     name = "Item";
     enchantment = 0;
-    for (unsigned int i = 0; i < 9; i++) {
+    for (unsigned int i = 0; i < 7; i++) {
         enhance[i] = 0;
     }
     type = 'I';
@@ -20,13 +20,13 @@ Item::Item(char type, int e)
         case 'h':
         {
             name = "Helmet";
-            int temp[9] = {0, 0, 0, e, e, 0, e, 0, 0};
-            for (unsigned int i = 0; i < 9; i++) {
+            int temp[9] = {0, 0, 0, e, e, 0, e};
+            for (unsigned int i = 0; i < 7; i++) {
                 enhance[i] = temp[i];
             }
             break;
         }
-            // Armor
+        // Armor
         case 'a':
         {
             name = "Armor";
@@ -36,7 +36,7 @@ Item::Item(char type, int e)
             }
             break;
         }
-            // Shield
+        // Shield
         case 's':
         {
             name = "Shield";
@@ -46,7 +46,7 @@ Item::Item(char type, int e)
             }
             break;
         }
-            // Ring
+        // Ring
         case 'r':
         {
             name = "Ring";
@@ -56,7 +56,7 @@ Item::Item(char type, int e)
             }
             break;
         }
-            // Belt
+        // Belt
         case 'c':
         {
             name = "Belt";
@@ -66,7 +66,7 @@ Item::Item(char type, int e)
             }
             break;
         }
-            // Boots
+        // Boots
         case 'b':
         {
             name = "Boots";
@@ -76,7 +76,7 @@ Item::Item(char type, int e)
             }
             break;
         }
-            // Weapon
+        // Weapon
         case 'w':
         {
             name = "Weapon";

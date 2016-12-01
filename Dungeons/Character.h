@@ -26,93 +26,93 @@
 class Strategy;
 
 class Character : public Subject{
-
-	string name;            // Character Name
-	string role;            // Character Class
-	int level;              // Character Level
-	int currentHealth;      // Character Hit Points
-	int maxHealth;          //the max health for a character
-	int stats[7];           // [STR, DEX, CON, INT, WIS, CHA, AC]
-	int attackNum;          // Number of attacks
-	int strAttackBonus;     //the attack bonuses for melee
-	int dexAttackBonus;     //the attack bonuses for range
-	void setStrAttackBonus();   //sets the attack bonuses for melee
-	void setDexAttackBonus();   //sets the attack bonuses for range
-	void updateCharacter();     //updates all of the character's stats when a change is made
-
-	// Item Slots
-	Item armor;
-	Item helmet;
-	Item boots;
-	Item shield;
-	Item weapon;
-	Item ring;
-
-	// Position Variables
-	int charX;
-	int charY;
-	Strategy * strategy;
-	char type;
-
+    
+    string name;            // Character Name
+    string role;            // Character Class
+    int level;              // Character Level
+    int currentHealth;      // Character Hit Points
+    int maxHealth;          //the max health for a character
+    int stats[7];           // [STR, DEX, CON, INT, WIS, CHA, AC]
+    int attackNum;          // Number of attacks
+    int strAttackBonus;     //the attack bonuses for melee 
+    int dexAttackBonus;     //the attack bonuses for range 
+    void setStrAttackBonus();   //sets the attack bonuses for melee
+    void setDexAttackBonus();   //sets the attack bonuses for range
+    void updateCharacter();     //updates all of the character's stats when a change is made
+    
+    // Item Slots
+    Item armor;
+    Item helmet;
+    Item boots;
+    Item shield;
+    Item weapon;
+    Item ring;
+    
+    // Position Variables
+    int charX;
+    int charY;
+    Strategy * strategy;
+    char type;
+    
 public:
-	Character(); 					    // default constructor
-	Character(int, string);                                 // constructor w/ level
-	Character(int, string, string);
-	~Character(); 					    // destructor
-
-	void hit(int);                                          // character takes damage
-	void levelUp();                                         //increase the characters level
-	void setName(string n) {name = n;}
-	void setRole(Character *,int);
-	void setLevel(int);                                     //set the characters level
-	void updateAttackBonuses();                             //sets the attack bonuses for the character
-
-	string getArmor() const { return armor.getName(); }
-	string getHelmet() const { return helmet.getName(); }
-	string getBoots() const { return boots.getName(); }
-	string getShield() const{ return shield.getName(); }
-	string getWeapon() const { return weapon.getName(); }
-	string getRing() const { return ring.getName(); }
-
-	int getAValue() const { return armor.getEnchantment(); }
-	int getHValue() const { return helmet.getEnchantment(); }
-	int getBValue() const { return boots.getEnchantment(); }
-	int getSValue() const { return shield.getEnchantment(); }
-	int getWValue() const { return weapon.getEnchantment(); }
-	int getRValue() const { return ring.getEnchantment(); }
-
-	int getStrAttackBonus();                           //returns an array of the melee attack bonuses
-	int getDexAttackBonus();                           //returns an array of the range attack bonuses
-	int getAtkNum() const {return attackNum; }
-	bool validateNewCharacter();                            //test method to test if character is valid
-	int * getStats();                                       // returns stats array
-	string getName() const;                                 //returns name
-	string getRole() const { return role; }                 //returns role
-	int getLevel() const { return level; }                  //returns level
-	int getHealth() const { return currentHealth; }         //returns health
-	int getMax() const { return maxHealth; }
-	void setCurrent(int c) {currentHealth = c;}
-	void setMax(int m) {maxHealth = m;}
-
-	//void equip(Item&);                                    // applies stat changes from items
-	int mod(int);                                           // calculates stat modifier
-	void setStat(int, int);
-	int getStat(int);
-	Item getItem(char) const;
-	string getClass() const;
-	void equip(Item);
-
-	int getCharX() const { return charX; }
-	int getCharY() const { return charY; }
-	char getType() const { return type; }
-	void setCharX(int x) { charX = x; }
-	void setCharY(int y) { charY = y; }
-	void setType(char);
-	void setEnchantments(int);
-
-	void setStrategy(Strategy *);
-	void move(int, int);
-	void attack(Character *);
+    Character(); 					    // default constructor
+    Character(int, string);                                 // constructor w/ level
+    Character(int, string, string);
+    ~Character(); 					    // destructor
+    
+    void hit(int);                                          // character takes damage
+    void levelUp();                                         //increase the characters level 
+    void setName(string n) {name = n;}
+    void setRole(Character *,int);
+    void setLevel(int);                                     //set the characters level
+    void updateAttackBonuses();                             //sets the attack bonuses for the character
+    
+    string getArmor() const { return armor.getName(); }
+    string getHelmet() const { return helmet.getName(); }
+    string getBoots() const { return boots.getName(); }
+    string getShield() const{ return shield.getName(); }
+    string getWeapon() const { return weapon.getName(); }
+    string getRing() const { return ring.getName(); }
+    
+    int getAValue() const { return armor.getEnchantment(); }
+    int getHValue() const { return helmet.getEnchantment(); }
+    int getBValue() const { return boots.getEnchantment(); }
+    int getSValue() const { return shield.getEnchantment(); }
+    int getWValue() const { return weapon.getEnchantment(); }
+    int getRValue() const { return ring.getEnchantment(); }
+    
+    int getStrAttackBonus();                           //returns an array of the melee attack bonuses
+    int getDexAttackBonus();                           //returns an array of the range attack bonuses 
+    int getAtkNum() const {return attackNum; }
+    bool validateNewCharacter();                            //test method to test if character is valid
+    int * getStats();                                       // returns stats array
+    string getName() const;                                 //returns name
+    string getRole() const { return role; }                 //returns role
+    int getLevel() const { return level; }                  //returns level
+    int getHealth() const { return currentHealth; }         //returns health
+    int getMax() const { return maxHealth; }
+    void setCurrent(int c) {currentHealth = c;}
+    void setMax(int m) {maxHealth = m;}
+    
+    //void equip(Item&);                                    // applies stat changes from items
+    int mod(int);                                           // calculates stat modifier
+    void setStat(int, int);
+    int getStat(int);
+    Item getItem(char) const;
+    string getClass() const;
+    void equip(Item);
+    
+    int getCharX() const { return charX; }
+    int getCharY() const { return charY; }
+    char getType() const { return type; }
+    void setCharX(int x) { charX = x; }
+    void setCharY(int y) { charY = y; }
+    void setType(char);
+    void setEnchantments(int);
+    
+    void setStrategy(Strategy *);
+    void move(int, int);
+    void attack(Character *);
 };
 
 

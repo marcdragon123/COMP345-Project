@@ -10,6 +10,9 @@ Map::Map()
     for (unsigned int i = 0; i < length; i++)
         grid[i] = new Cell[width];
     done = false;
+    
+    characters = new Character*[64];
+    numChars = 0;
 } // End default constructor
 
 Map::Map(string in, int x, int y)
@@ -22,6 +25,9 @@ Map::Map(string in, int x, int y)
     for (unsigned int i = 0; i < length; i++)
         grid[i] = new Cell[width];
     done = false;
+    
+    characters = new Character*[64];
+    numChars = 0;
 }
 
 Map::~Map()
@@ -106,28 +112,28 @@ bool Map::verify()
         }
     return false;
 } // End function test
-
+/*
 int Map::getStartX() const
 {
-    for (unsigned int i = 0; i < length; i++)
-        for (unsigned int j = 0; j < width; j++)
-        {
-            if (grid[i][j].getDoor()->getLink() == "CAMPAIGN_START")
-                return j;
-        }
-    return 0;
-}
-
+   for (unsigned int i = 0; i < length; i++)
+       for (unsigned int j = 0; j < width; j++)
+       {
+           if (grid[i][j].getDoor()->getLink() == "CAMPAIGN_START")
+               return j;
+       }
+   return 0;
+}//*/
+/*
 int Map::getStartY() const
 {
-    for (unsigned int i = 0; i < length; i++)
-        for (unsigned int j = 0; j < width; j++)
-        {
-            if (grid[i][j].getDoor()->getLink() == "CAMPAIGN_START")
-                return i;
-        }
-    return 0;
-}
+   for (unsigned int i = 0; i < length; i++)
+       for (unsigned int j = 0; j < width; j++)
+       {
+           if (grid[i][j].getDoor()->getLink() == "CAMPAIGN_START")
+               return i;
+       }
+   return 0;
+}//*/
 
 void Map::print()
 {
@@ -149,13 +155,16 @@ void Map::print()
                     cout << "  ___  ";
                     break;
                 case 'e':
-                    cout << "  -E-  ";
+                    if (grid[x][y].getCharacter()->getType() == 'e')
+                        cout << "  -E-  ";
+                    else if (grid[x][y].getCharacter()->getType() == 'p')
+                        cout << "  -P-  ";
+                    else if (grid[x][y].getCharacter()->getType() == 'f')
+                        cout << "  -F-  ";
+                    else break;
                     break;
                 case 'w':
                     cout << "|||||||";
-                    break;
-                case 'p':
-                    cout << "  -P-  ";
                     break;
                 default:
                     break;
@@ -193,4 +202,14 @@ void Map::print()
         cout << "--------";
     cout << "-" << endl;
 }//*/
+
+void Map::addCharacter(Character * me)
+{
+    if (numChars < 64)
+    {
+        characters[numChars] = me;
+        numChars++;
+    }
+    else cerr << "Could not add character, map full" << endl;
+}
 

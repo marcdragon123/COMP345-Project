@@ -37,9 +37,9 @@ class Item
     int enchantment;        // Enchantment associated to item
     // Enhancement on characters abilities
     int enhance[9];   // [STR, DEX, CON, INT, WIS, CHA, AC, ATK, DMG]
-
+    
 public:
-
+    
     Item();                 // Default Constructor
     Item(char, int);        // Constructor with Type and Enchantment
     Item(const Item&);      // Copy Constructor

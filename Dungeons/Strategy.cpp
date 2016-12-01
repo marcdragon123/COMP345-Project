@@ -22,7 +22,7 @@ void FriendlyStrategy::move(int x, int y, Character *me)
 {
     me->setCharX(x);
     me->setCharY(y);
-    cout << "Character moved to " << x << ", " << y << endl;
+    cout << "Character moved to " << x << ", " << y << endl;  
 }
 
 void HumanPlayerStrategy::attack(Character *me, Character *them)
@@ -32,7 +32,7 @@ void HumanPlayerStrategy::attack(Character *me, Character *them)
         int attackroll = dice->roll(1, 20);
         int damageroll = 0;
         attackroll += me->getStrAttackBonus();
-
+    
         if (attackroll >= them->getStat(6))
         {
             damageroll = dice->roll(1,6);
@@ -50,12 +50,12 @@ void HumanPlayerStrategy::attack(Character *me, Character *them)
 }
 void AggressorStrategy::attack(Character *me, Character *them)
 {
-    for (unsigned int atk = 0; atk < me->getAtkNum(); atk++)
-    {
+        for (unsigned int atk = 0; atk < me->getAtkNum(); atk++)
+        {
         int attackroll = dice->roll(1, 20);
         int damageroll = 0;
         attackroll += me->getStrAttackBonus();
-
+    
         if (attackroll >= them->getStat(6))
         {
             damageroll = dice->roll(1,6);
@@ -71,18 +71,18 @@ void AggressorStrategy::attack(Character *me, Character *them)
 }
 void FriendlyStrategy::attack(Character *me, Character *them)
 {
-
+    
 }
 
 void HumanPlayerStrategy::open(Container *it, Character *me)
 {
-
+    
 }
 void AggressorStrategy::open(Container *it, Character *me)
 {
-
+    
 }
 void FriendlyStrategy::open(Container *it, Character *me)
 {
-
+    
 }

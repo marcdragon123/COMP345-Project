@@ -43,11 +43,13 @@ void EditBuilder::buildMap(string filename, Campaign* camp)
                 case 'e':
                     active >> target;
                     buildCharacter(target);
-                    choc = character;
-                    map->setCell(j, i, choc);
-                    choc->setCharX(j);
-                    choc->setCharY(i);
-                    camp->addCharacter(choc);
+                    map->setCell(j, i, character);
+                    character->setCharX(j);
+                    character->setCharY(i);
+                    map->addCharacter(character);
+                    cout << "AAA" << endl;
+                    cout << map->getCell(j, i).getType() << endl;
+                    cout << map->getCell(j, i).getCharacter()->getName() << endl;;
                     break;
                 case 'w':
                     map->setCell(j, i, 'w');
@@ -67,7 +69,7 @@ void PlayBuilder::buildMap(string filename, Character ch, Campaign* camp)
 {
     ifstream active;
     active.open("Save_Data/Campaigns/" + filename);
-
+    
     int x, y;
     int dx, dy;
     int size;
@@ -75,10 +77,10 @@ void PlayBuilder::buildMap(string filename, Character ch, Campaign* camp)
     string in, link, target;
     char t, t2;
     Character* choc;
-
+    
     active >> in >> y >> x;
     map = new Map(in, x, y);
-
+    
     for (unsigned int i = 0; i < y; i++)
     {
         for (unsigned int j = 0; j < x; j++)
@@ -112,7 +114,7 @@ void PlayBuilder::buildMap(string filename, Character ch, Campaign* camp)
                     map->setCell(j, i, choc);
                     choc->setCharX(j);
                     choc->setCharY(i);
-                    camp->addCharacter(choc);
+                    map->addCharacter(choc);
                     break;
                 case 'w':
                     map->setCell(j, i, 'w');
@@ -122,42 +124,53 @@ void PlayBuilder::buildMap(string filename, Character ch, Campaign* camp)
             }
         }
     }
-
+    
     active.close();
 }
 
-void CharacterBuilder::buildCharacter(string filename)
+void Builder::buildCharacter(string filename)
 {
     ifstream active;
     active.open("Save_Data/Characters/" + filename);
-
+    
     string name, role, stop;
     char type, item;
     int lvl, cH, mH, s, sAB, dAB, enchant;
-
+    
     active >> name >> role >> type;
     active >> lvl >> cH >> mH;
     character = new Character(lvl, role, name);
     character->setCurrent(cH);
     character->setMax(mH);
     character->setType(type);
-
-    for (unsigned int i = 0; i < 8; i++)
+        
+    for (unsigned int i = 0; i < 7; i++)
     {
         active >> s;
         character->setStat(i, s);
     }
-
+    
     active >> sAB >> dAB;
-    Item it;
-
-    for (unsigned int i = 0; i < 6; i++)
-    {
-        active >> item >> enchant;
-        it = Item(item, enchant);
-        character->equip(it);
-    }
-
+    Item it; 
+    
+    active >> enchant;
+    it = Item('a', enchant);
+    character->equip(it);
+    active >> enchant;
+    it = Item('h', enchant);
+    character->equip(it);
+    active >> enchant;
+    it = Item('b', enchant);
+    character->equip(it);
+    active >> enchant;
+    it = Item('s', enchant);
+    character->equip(it);
+    active >> enchant;
+    it = Item('w', enchant);
+    character->equip(it);
+    active >> enchant;
+    it = Item('r', enchant);
+    character->equip(it);
+    
     active.close();
 }
-

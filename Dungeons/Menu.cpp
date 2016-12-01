@@ -9,66 +9,66 @@ Menu::Menu() {
 Menu::~Menu() {};
 
 void Menu::edit() {
-    game = new Edit();
+        game = new Edit();
 
-    ifstream directory;
-    directory.open("Save_Data/Campaigns/Campaigns.txt");
-    int index = 1;
-    string ls, filename;
-    int active;
+        ifstream directory;
+        directory.open("Save_Data/Campaigns/Campaigns.txt");
+        int index = 1;
+        string ls, filename;
+        int active;
 
-    while (directory >> ls)
-    {
-        cout << index << ". " << ls << endl;
-        index++;
+        while (directory >> ls)
+        {
+            cout << index << ". " << ls << endl;
+            index++;
+        }
+        cout << index << ". " << "Create new campaign" << endl;
+        cout << "----------------------------------------" << endl;
+        cout << "Which Campaign would you like to edit? ";
+        cin >> active;
+        directory.clear();
+        directory.seekg(0, ios::beg);
+        if (active == index)
+        {
+            cout << "Enter a name for this campaign: ";
+            cin >> filename;
+            game->createCampaign(filename);
+            game->load("Save_Data/Campaigns/" + filename);
+            game->editCampaign();
+            directory.close();
+            ofstream directory;
+            directory.open("Save_Data/Campaigns/Campaigns.txt", std::ios_base::app);
+            directory << "\n" << filename;
+            directory.close();
+        }
+        else if (active < index)
+        {
+            for (unsigned int i = 0; i < index; i++)
+                directory >> filename;
+            game->createCampaign(filename);
+            game->load("Save_Data/Campaigns/" + filename + ".txt");
+            game->editCampaign();
+            directory.close();
+        }
+        else cout << "Please enter a valid value" << endl;
+        
     }
-    cout << index << ". " << "Create new campaign" << endl;
-    cout << "----------------------------------------" << endl;
-    cout << "Which Campaign would you like to edit? ";
-    cin >> active;
-    directory.clear();
-    directory.seekg(0, ios::beg);
-    if (active == index)
-    {
-        cout << "Enter a name for this campaign: ";
-        cin >> filename;
-        game->createCampaign(filename);
-        game->load("Save_Data/Campaigns/" + filename);
-        game->editCampaign();
-        directory.close();
-        ofstream directory;
-        directory.open("Save_Data/Campaigns/Campaigns.txt", std::ios_base::app);
-        directory << "\n" << filename;
-        directory.close();
-    }
-    else if (active < index)
-    {
-        for (unsigned int i = 0; i < index; i++)
-            directory >> filename;
-        game->createCampaign(filename);
-        game->load("Save_Data/Campaigns/" + filename + ".txt");
-        game->editCampaign();
-        directory.close();
-    }
-    else cout << "Please enter a valid value" << endl;
-
-}
 
 void Menu::character() {
     cE = new CharacterEditor();
-
+    
     ifstream directory;
     directory.open("Save_Data/Characters/Characters.txt");
     int index = 1;
     string ls, filename, line;
     int active;
     int role;
-
+    
     while (directory >> ls)
-    {
-        cout << index << ". " << ls << endl;
-        index++;
-    }
+        {
+            cout << index << ". " << ls << endl;
+            index++;
+        }
     cout << index << ". " << "Create new character" << endl;
     cout << "----------------------------------------" << endl;
     cout << "Which Character would you like to edit? ";
@@ -79,9 +79,9 @@ void Menu::character() {
     {
         cout << "Enter a name for this Character: ";
         cin >> filename;
-        while (cout << "Choose a class: " << endl
-                    << "1. Bully" << endl << "2. Nimble" << endl
-                    << "3. Tank" << endl)
+        while (cout << "Choose a class: " << endl 
+                << "1. Bully" << endl << "2. Nimble" << endl 
+                << "3. Tank" << endl)
         {
             cin >> role;
             if (role > 0 && role < 4)
@@ -105,7 +105,7 @@ void Menu::character() {
             directory >> filename;
         cout << filename << endl;
         cE->loadCharacter(filename +".txt");
-
+        
         cE->editCharacter();
         directory.close();
     }//*/
@@ -140,9 +140,9 @@ void Menu::play() {
         {
             cout << "Enter a name for this Character: ";
             cin >> filename;
-            while (cout << "Choose a class: " << endl
-                        << "1. Bully" << endl << "2. Nimble" << endl
-                        << "3. Tank" << endl)
+            while (cout << "Choose a class: " << endl 
+                    << "1. Bully" << endl << "2. Nimble" << endl 
+                    << "3. Tank" << endl)
             {
                 cin >> role;
                 if ((role > 0) && (role < 4))
@@ -165,7 +165,7 @@ void Menu::play() {
                 directory >> filename;
             pl->loadCharacter(filename + ".txt");
             directory.close();
-
+            
             cout << "Which campaign would you like to play?" << endl;
             directory.open("Save_Data/Campaigns/Campaigns.txt");
             index = 1;
@@ -184,7 +184,7 @@ void Menu::play() {
                 //cout << "A";
                 //cout << pl << endl;
                 //pl->createCampaign(filename);
-
+                
                 pl->load("Save_Data/Campaigns/" + filename + ".txt");
                 //cout << "B";
                 pl->playCampaign();
@@ -199,7 +199,7 @@ void Menu::play() {
 }//*/
 
 void Menu::mainMenu() {
-
+    
     while (1)
     {
         cout << "**** WELCOME TO DUNGEONS & DRAGONS ****" << endl;
@@ -212,7 +212,7 @@ void Menu::mainMenu() {
         cin >> gameMode;
 
         if (gameMode == 1) play();
-        else if (gameMode == 2) edit();
+        else if (gameMode == 2) edit();   
         else if (gameMode == 3) character();
         else if (gameMode == 4) break;
     }

@@ -17,7 +17,7 @@ public:
     Character * getCharacter() {return character;}
     virtual void buildMap(string, Campaign*) = 0;
     virtual void buildMap(string, Character, Campaign*) = 0;
-    virtual void buildCharacter(string) = 0;
+    void buildCharacter(string);
 };
 
 class EditBuilder : public Builder
@@ -26,7 +26,6 @@ class EditBuilder : public Builder
 public:
     void buildMap(string, Campaign*);
     void buildMap(string, Character, Campaign*) {}
-    void buildCharacter(string filename) {}
 };
 
 class PlayBuilder : public Builder
@@ -35,12 +34,11 @@ class PlayBuilder : public Builder
 public:
     void buildMap(string, Campaign*) {}
     void buildMap(string, Character, Campaign*);
-    void buildCharacter(string filename) {}
 };
 
 class CharacterBuilder : public Builder
 {
-
+    
 public:
     void buildMap(string, Campaign*) {}
     void buildMap(string, Character, Campaign*) {}

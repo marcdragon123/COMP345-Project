@@ -43,7 +43,7 @@ protected:
     Dice * dice;
 public:
     Strategy();
-
+    
     virtual void move(int, int, Character *) = 0;
     virtual void attack(Character *, Character *) = 0;
     virtual void open(Container *, Character *) = 0;

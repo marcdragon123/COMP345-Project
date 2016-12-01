@@ -1,4 +1,3 @@
-
 #include "Character.h"
 #include "Strategy.h"
 
@@ -24,13 +23,13 @@ Character::Character(int lvl, string n)
     role = "fighter";
     level = lvl;
     attackNum = 0;
-
+    
     for (unsigned int i = 1; i <= level; i+=5)
         attackNum += 1;
-
+    
     Dice d = Dice();
     int r[4];
-
+    
     for (unsigned int i = 0; i < 6; i++)
     {
         for (unsigned int j = 0; j < 4; j++)
@@ -48,9 +47,9 @@ Character::Character(int lvl, string n)
             }
         stats[i] = r[0] + r[1] + r[3];  // randomly allocates skill points
     }
-    updateCharacter(); //set currentHealth, armor class, damage bonus, and attack bonuses
-    currentHealth = maxHealth;
-    setType('e');
+	updateCharacter(); //set currentHealth, armor class, damage bonus, and attack bonuses
+	currentHealth = maxHealth;
+        setType('e');
 } // end constructor
 
 Character::Character(int lvl, string cls, string n)
@@ -59,13 +58,13 @@ Character::Character(int lvl, string cls, string n)
     role = cls;
     level = lvl;
     attackNum = 0;
-
+    
     for (unsigned int i = 1; i <= level; i+=5)
         attackNum += 1;
     Dice d = Dice();
     int r[4];
     int tempstat[6];
-
+    
     for (unsigned int i = 0; i < 6; i++)
     {
         for (unsigned int j = 0; j < 4; j++)
@@ -112,20 +111,20 @@ Character::Character(int lvl, string cls, string n)
         stats[5] = tempstat[1];
         stats[4] = tempstat[0];
     }
-    updateCharacter();              //set currentHealth, armor class, damage bonus, and attack bonuses
-    currentHealth = maxHealth;	// AC = base + dex modifier
-    setType('e');
+	updateCharacter();              //set currentHealth, armor class, damage bonus, and attack bonuses
+	currentHealth = maxHealth;	// AC = base + dex modifier
+        setType('e');
 } // end constructor
 
 void Character::updateCharacter() {
     maxHealth = 10 + this->mod(stats[2]) + level;   // HP = base + constitution modifier
-    stats[6] = 10 + this->mod(stats[1]);            // AC = base + dex modifier
+    stats[6] = 10 + this->mod(stats[1]);            // AC = base + dex modifier							
     updateAttackBonuses();
 }
 
 
-//! Implementation of the verification of a newly created Character
-//! @return bool value, true of the character is valid (stats should be in the 3-18 range for a new character), false if invalid.
+  //! Implementation of the verification of a newly created Character
+  //! @return bool value, true of the character is valid (stats should be in the 3-18 range for a new character), false if invalid. 
 bool Character::validateNewCharacter()
 {
     for (int i = 0; i <= 5; i++)
@@ -134,7 +133,7 @@ bool Character::validateNewCharacter()
     return true;
 }
 
-//! Reduces the characters current health, by the damage.
+//! Reduces the characters current health, by the damage. 
 void Character::hit(int damage) {
     currentHealth = currentHealth - damage;
     Notify("Character received damage");
@@ -142,7 +141,7 @@ void Character::hit(int damage) {
 
 int* Character::getStats() { return stats;}
 
-//!Returns the modifier of an ability.
+//!Returns the modifier of an ability. 
 int Character::mod(int skillPoints)
 {
     if (skillPoints % 2 == 1)
@@ -168,11 +167,11 @@ void Character::setRole(Character *me, int role)
             cout << "CC" << endl;
             break;
         default:
-            break;
+            break;          
     }
 }
 
-//!Change the character's level to the given value.
+//!Change the character's level to the given value. 
 void Character::setLevel(int newLevel) {
     if (newLevel > level)
         for (unsigned int i = level; i < newLevel; i++)
@@ -189,16 +188,16 @@ void Character::setLevel(int newLevel) {
 void Character::levelUp() {
     if (level%5 == 0 && level > 0)
         attackNum++;        // Increase number of attack rolls every 5 levels
-
+    
     level++;                // Level is increased
     Dice d = Dice();
-
+    
     int consMod = -5;       // Constitution modifier
     int cons = stats[2];
-
+    
     for (unsigned int i = 2; i < cons; i+=2)
         consMod++;
-
+    
     maxHealth += d.roll(1, 10, consMod);    // Max health increased
     currentHealth = maxHealth;              // Current health set to max
     strAttackBonus++;           // Attack bonus increased (Strength)
@@ -207,24 +206,24 @@ void Character::levelUp() {
     Notify("Character leveled up. New level is " + std::to_string(level));
 }
 
-//! Returns an array of the melle attack bonuses. Each element is an attack turn.
-//  There can be up to 4 attack turns. The number of attack turns is based on the
-//	character's level.
+//! Returns an array of the melle attack bonuses. Each element is an attack turn. 
+//  There can be up to 4 attack turns. The number of attack turns is based on the 
+//	character's level. 
 int Character::getStrAttackBonus() {
-    return strAttackBonus;
+	return strAttackBonus;
 }
 
-//! Returns an array of the range attack bonuses. Each element is an attack turn.
-//  There can be up to 4 attack turns. The number of attack turns is based on the
-//	character's level.
+//! Returns an array of the range attack bonuses. Each element is an attack turn. 
+//  There can be up to 4 attack turns. The number of attack turns is based on the 
+//	character's level. 
 int Character::getDexAttackBonus() {
-    return dexAttackBonus;
+	return dexAttackBonus;
 }
 
-//! This method updates the attack bonuses, becuase the ability stats have changed.
+//! This method updates the attack bonuses, becuase the ability stats have changed. 
 void Character::updateAttackBonuses() {
-    setStrAttackBonus(); //Range Attacks = Base attack bonus + Dexterity modifier
-    setDexAttackBonus(); //Melee Attacks = Base attack bonus + Strength modifier
+	setStrAttackBonus(); //Range Attacks = Base attack bonus + Dexterity modifier
+	setDexAttackBonus(); //Melee Attacks = Base attack bonus + Strength modifier
 }
 
 //! Melee Attacks = Base attack bonuses + Strength modifier
@@ -276,11 +275,11 @@ Item Character::getItem(char c) const
 }
 string Character::getClass() const { return role; }
 void Character::equip(Item gear)
-{
-    switch (gear.getType())					// case for each type of equippable item
+{				
+   switch (gear.getType())					// case for each type of equippable item
     {
         case 'h':
-        {
+        {				
             for (unsigned int i = 0; i < 9; i++)
             {
                 stats[i] -= helmet.getEnhancement()[i];	// removes stat bonus from currently equipped item
@@ -341,8 +340,8 @@ void Character::equip(Item gear)
         }
         default: cout << "INVALID ITEM" << endl;
     }
-    Notify("Character equipped item");
-} // end function equip
+   Notify("Character equipped item");  
+} // end function equip 
 
 string Character::getName() const { return name; }
 
